@@ -37,7 +37,7 @@ export default function Navbar() {
 
         {/* Login Button */}
         <button
-          className="flex items-center gap-2 px-4 py-2 text-[#283618] font-bold bg-white rounded-lg hover:bg-gray-800"
+          className="flex items-center gap-2 px-4 py-2 text-[#283618] font-bold bg-white rounded-lg hover:bg-gray-300"
           onClick={handleLoginClick}
         >
           <IoLogInOutline style={{ fontSize: "24px" }} />
