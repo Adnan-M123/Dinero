@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CiSearch } from 'react-icons/ci';
 
 export default function Restaurants() {
   const categories = [
-    "Burgers", "Steak", "Pizza", "Chicken", "Fast food", "Sandwich", "Pasta", 
-    "Dinner", "Breakfast", "Asian", "Arabic", "American", "Desserts", "Cooked meals", 
-    "Breakfast", "Cereals", "Bowls", "Vegan"
+    "Burgers", "Steak", "Pizza", "Chicken", "Fast food", "Sandwich", "Pasta",
+    "Dinner", "Breakfast", "Asian", "Arabic", "American", "Desserts", "Cooked meals",
+    "Cereals", "Bowls", "Vegan"
   ];
 
   const restaurants = [
@@ -50,32 +50,45 @@ export default function Restaurants() {
     }
   ];
 
-  // Repeat restaurants to fill the grid
   const allRestaurants = [...restaurants, ...restaurants, ...restaurants, ...restaurants];
 
-  // State to track the current displayed categories
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef(null);
+  const scrollAmount = 160 * 2; // adjust how far it scrolls per click (2 items)
 
-  // Function to handle left button click (move 3 items to the left)
+  const smoothScrollBy = (distance, duration = 1000) => {
+    const element = scrollRef.current;
+    const start = element.scrollLeft;
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress; // easeInOut
+
+      element.scrollLeft = start + distance * ease;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  };
+
   const handleLeftClick = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 3 + categories.length) % categories.length);
+    smoothScrollBy(-scrollAmount, 1000); // scroll left slowly
   };
 
-  // Function to handle right button click (move 3 items to the right)
   const handleRightClick = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 3) % categories.length);
+    smoothScrollBy(scrollAmount, 1000); // scroll right slowly
   };
-
-  // Calculate which categories to display (responsively)
-  const displayedCategories = [
-    ...categories.slice(currentIndex, currentIndex + 10),
-    ...(currentIndex + 10 > categories.length ? categories.slice(0, (currentIndex + 10) % categories.length) : [])
-  ];
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col font-serif">
       <Navbar />
-      
+
       {/* Hero Section */}
       <div
         className="relative w-full h-[500px] bg-cover bg-center bg-fixed"
@@ -102,32 +115,34 @@ export default function Restaurants() {
 
       {/* Categories */}
       <section className="bg-[#CDC1A5] py-2">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center gap-6 px-4">
-            {/* Left Button */}
+        <div className="w-full px-4">
+          <div className="flex items-center w-full overflow-hidden">
+            {/* Left Arrow */}
             <button
               onClick={handleLeftClick}
-              className="text-lg text-gray-700 font-bold p-2 transition-all duration-500 ease-in-out"
+              className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-700"
             >
               &lt;
             </button>
-
-            {/* Categories */}
-            <div className="flex gap-6 min-w-max transition-all duration-500 ease-in-out">
-              {displayedCategories.map((category, index) => (
-                <button 
-                  key={index} 
-                  className={`text-sm text-[#717171] hover:scale-105 duration-200 border border-solid rounded-lg p-3 min-w-[150px] text-center`}
+            <div
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-x-2 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style jsx>{`div::-webkit-scrollbar { display: none; }`}</style>
+              {categories.map((category, index) => (
+                <button
+                  key={index}
+                  className="bg-[#4A503D] text-white font-serif font-semibold hover:scale-105 transition-transform duration-100 px-6 py-2 rounded-lg shadow-md min-w-[120px] text-center whitespace-nowrap"
                 >
                   {category}
                 </button>
               ))}
             </div>
-
-            {/* Right Button */}
+            {/* Right Arrow */}
             <button
               onClick={handleRightClick}
-              className="text-lg text-gray-700 font-bold p-2 transition-all duration-500 ease-in-out"
+              className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-700"
             >
               &gt;
             </button>
@@ -140,7 +155,6 @@ export default function Restaurants() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {allRestaurants.map((restaurant, index) => {
-              // Alternate button colors based on index
               let buttonColor;
               if (index % 7 === 0) buttonColor = "bg-[#5c644f]";
               else if (index % 7 === 1) buttonColor = "bg-[#b3894d]";
@@ -151,7 +165,7 @@ export default function Restaurants() {
               else buttonColor = "bg-[#cb9d69]";
 
               return (
-                <div key={index} className="bg-white rounded-lg overflow-hidden flex flex-col">
+                <div key={index} className="bg-white rounded-lg overflow-hidden flex flex-col transition-transform duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02]">
                   <div className="h-48 relative">
                     <img 
                       src={restaurant.image || "/placeholder.svg"} 
@@ -163,7 +177,7 @@ export default function Restaurants() {
                     <h3 className="font-serif text-lg mb-2">{restaurant.name}</h3>
                     <p className="text-xs text-[#717171] mb-4">{restaurant.description}</p>
                     <div className="mt-auto">
-                      <button className={`${buttonColor} text-white text-xs uppercase py-2 px-6 rounded-full`}>
+                      <button className={`${buttonColor} text-white text-xs uppercase py-2 px-6 rounded-full transform transition-transform duration-300 active:scale-95`}>
                         Book now
                       </button>
                     </div>
@@ -174,7 +188,7 @@ export default function Restaurants() {
           </div>
         </div>
       </section>
-      
+
       <Footer />
     </main>
   );
