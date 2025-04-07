@@ -3,7 +3,7 @@ import { RiTwitterXFill } from 'react-icons/ri';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#4A503D] text-white py-10">
+    <footer className="bg-[#4A503D] text-white pt-10 pb-5">
       <div className="flex justify-around">
         <div>
           <h4 className="font-bold">Website</h4>
