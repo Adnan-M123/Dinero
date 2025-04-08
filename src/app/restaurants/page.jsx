@@ -55,7 +55,7 @@ export default function Restaurants() {
   const scrollRef = useRef(null);
   const scrollAmount = 160 * 2; // adjust how far it scrolls per click (2 items)
 
-  const smoothScrollBy = (distance, duration = 1000) => {
+  const smoothScrollBy = (distance, duration = 500) => {
     const element = scrollRef.current;
     const start = element.scrollLeft;
     const startTime = performance.now();
@@ -78,11 +78,11 @@ export default function Restaurants() {
   };
 
   const handleLeftClick = () => {
-    smoothScrollBy(-scrollAmount, 1000); // scroll left slowly
+    smoothScrollBy(-scrollAmount, 100); // scroll left slowly
   };
 
   const handleRightClick = () => {
-    smoothScrollBy(scrollAmount, 1000); // scroll right slowly
+    smoothScrollBy(scrollAmount, 100); // scroll right slowly
   };
 
   return (
@@ -133,7 +133,7 @@ export default function Restaurants() {
               {categories.map((category, index) => (
                 <button
                   key={index}
-                  className="bg-[#4A503D] text-white font-serif font-semibold hover:scale-105 transition-transform duration-100 px-6 py-2 rounded-lg shadow-md min-w-[120px] text-center whitespace-nowrap"
+                  className="bg-[#4A503D] text-white font-serif font-semibold hover:scale-105 transition-transform duration-100 px-2 py-2 rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap"
                 >
                   {category}
                 </button>
