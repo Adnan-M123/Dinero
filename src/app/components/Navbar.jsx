@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import LogInModal from './LogInModal';
-import { GrRestaurant } from 'react-icons/gr';
-import { IoLogInOutline, IoRestaurantOutline } from 'react-icons/io5';
+import { IoLogInOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
@@ -39,36 +38,42 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="flex items-center justify-between px-6 py-4 bg-[#283618] shadow-md flex-wrap">
-        {/* Left Icon and Restaurants Button */}
-        <div className="grid grid-cols-2 gap-4">
+      <nav className="flex justify-baseline items-center px-6 py-1 bg-[#283618] shadow-md">
+        {/* Left: Logo */}
+        <div>
           <button
             onClick={handleLandPageClick}
-            className="text-2xl font-bold text-white flex flex-col items-center space-y-2 hover:text-gray-300 cursor-pointer hover:scale-105"
+            className="text-3xl font-bold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
           >
-            <GrRestaurant style={{ color: 'white', fontSize: '24px' }} />
-            <span>DINERO</span>
+            <img src="../dinero-logo.png" alt="Logo" className="w-18 h-18 rounded-full" />
           </button>
+        </div>
 
-          <div className="text-2xl font-bold text-white flex flex-col items-center space-y-2">
+        <div className="flex flex-1 items-end">
+          <div className="flex gap-7 mt-4 pl-9">
+            <button
+              onClick={handleLandPageClick}
+              className="text-sm font-semibold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
+            >
+              Discover
+            </button>
             <button
               onClick={handleRestaurantsClick}
-              className="flex flex-col items-center space-y-2 text-white hover:text-gray-300 cursor-pointer hover:scale-105"
+              className="text-sm font-semibold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
             >
-              <IoRestaurantOutline style={{ color: 'white', fontSize: '24px' }} />
-              <span>RESTAURANTS</span>
+              Restaurants
+            </button>
+          </div>
+          <div className="flex justify-end w-full">
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-[#283618] font-bold bg-white rounded-lg hover:bg-gray-300 cursor-pointer hover:scale-105"
+              onClick={handleLoginClick}
+            >
+              <IoLogInOutline style={{ fontSize: '24px' }} />
+              Log In
             </button>
           </div>
         </div>
-
-        {/* Login Button */}
-        <button
-          className="flex items-center gap-2 px-4 py-2 text-[#283618] font-bold bg-white rounded-lg hover:bg-gray-300 cursor-pointer hover:scale-105"
-          onClick={handleLoginClick}
-        >
-          <IoLogInOutline style={{ fontSize: '24px' }} />
-          Log In
-        </button>
       </nav>
 
       {/* Conditionally render LogInModal */}
