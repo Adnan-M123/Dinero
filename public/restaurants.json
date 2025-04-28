@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Klopa",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "./Klopa/klopa-restaurant.jpg"
+  },
+  {
+    "name": "Careva Ćuprija",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "careva-cuprija.jpg"
+  },
+  {
+    "name": "Cakum Pakum",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "cakum-pakum.jpg"
+  },
+  {
+    "name": "Apetit Restoran",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "apetit-restoran.jpg"
+  },
+  {
+    "name": "Kibe Mahala",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "kibe-mahala.jpg"
+  },
+  {
+    "name": "Željo Ćevabdžinica",
+    "description": "Lorem ipsum dolor sit amet, consectetur",
+    "image": "zeljo-restaurant.jpg"
+  }
+]
