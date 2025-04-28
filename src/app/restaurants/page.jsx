@@ -1,88 +1,84 @@
-"use client";
+'use client';
 
 import React, { useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import { CiSearch } from 'react-icons/ci';
 
 export default function Restaurants() {
   const categories = [
-    "Burgers", "Steak", "Pizza", "Chicken", "Fast food", "Sandwich", "Pasta",
-    "Dinner", "Breakfast", "Asian", "Arabic", "American", "Desserts", "Cooked meals",
-    "Cereals", "Bowls", "Vegan"
+    'Burgers',
+    'Steak',
+    'Pizza',
+    'Chicken',
+    'Fast food',
+    'Sandwich',
+    'Pasta',
+    'Dinner',
+    'Breakfast',
+    'Asian',
+    'Arabic',
+    'American',
+    'Desserts',
+    'Cooked meals',
+    'Cereals',
+    'Bowls',
+    'Vegan',
   ];
 
   const restaurants = [
     {
-      name: "Klopa",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/klopa.jpg"
+      name: 'Klopa',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/klopa.jpg',
     },
     {
-      name: "Careva Ćuprija",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/careva-cuprija.jpg"
+      name: 'Careva Ćuprija',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/careva-cuprija.jpg',
     },
     {
-      name: "Casa di Pasta",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/casa-di-pasta.jpg"
+      name: 'Casa di Pasta',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/casa-di-pasta.jpg',
     },
     {
-      name: "Avlija Restoran",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/avlija-restoran.jpg"
+      name: 'Avlija Restoran',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/avlija-restoran.jpg',
     },
     {
-      name: "Kibe Mahala",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/kibe-mahala.jpg"
+      name: 'Kibe Mahala',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/kibe-mahala.jpg',
     },
     {
-      name: "Željo Čevabdžinica",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/zeljo-cevabdzinica.jpg"
+      name: 'Željo Čevabdžinica',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/zeljo-cevabdzinica.jpg',
     },
     {
-      name: "Careva Ćuprija",
-      description: "Lorem ipsum dolor sit amet, consectetur",
-      image: "/images/restaurants/careva-cuprija.jpg"
-    }
+      name: 'Careva Ćuprija',
+      description: 'Lorem ipsum dolor sit amet, consectetur',
+      image: '/images/restaurants/careva-cuprija.jpg',
+    },
   ];
 
   const allRestaurants = [...restaurants, ...restaurants, ...restaurants, ...restaurants];
 
   const scrollRef = useRef(null);
-  const scrollAmount = 160 * 2; // adjust how far it scrolls per click (2 items)
+  const scrollAmount = 250 * 2; // adjust how far it scrolls per click (2 items)
 
-  const smoothScrollBy = (distance, duration = 500) => {
-    const element = scrollRef.current;
-    const start = element.scrollLeft;
-    const startTime = performance.now();
-
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const ease = progress < 0.5
-        ? 2 * progress * progress
-        : -1 + (4 - 2 * progress) * progress; // easeInOut
-
-      element.scrollLeft = start + distance * ease;
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  };
 
   const handleLeftClick = () => {
-    smoothScrollBy(-scrollAmount, 100); // scroll left slowly
+    // Instant scroll left
+    scrollRef.current.scrollLeft -= scrollAmount; // no animation, just immediate scroll
   };
 
   const handleRightClick = () => {
-    smoothScrollBy(scrollAmount, 100); // scroll right slowly
+    // Instant scroll right
+    scrollRef.current.scrollLeft += scrollAmount; // no animation, just immediate scroll
   };
 
   return (
@@ -115,21 +111,27 @@ export default function Restaurants() {
 
       {/* Categories */}
       <section className="bg-[#CDC1A5] py-2">
-        <div className="w-full px-4">
+        <div className="w-full px-7">
           <div className="flex items-center w-full overflow-hidden">
             {/* Left Arrow */}
-            <button
-              onClick={handleLeftClick}
-              className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-700"
-            >
-              &lt;
-            </button>
+            <div>
+              <button
+                onClick={handleLeftClick}
+                className="w-9 h-9 mr-1 flex items-center justify-center text-lg font-bold text-white bg-[#b1a68e] rounded-full hover:bg-[#938975] p-2"
+              >
+                <SlArrowLeft size={16} />
+              </button>
+            </div>
             <div
               ref={scrollRef}
-              className="flex overflow-x-auto gap-x-2 scroll-smooth"
+              className="flex overflow-x-auto gap-x-2 px-2 scroll-smooth"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              <style jsx>{`div::-webkit-scrollbar { display: none; }`}</style>
+              <style jsx>{`
+                div::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
               {categories.map((category, index) => (
                 <button
                   key={index}
@@ -140,12 +142,14 @@ export default function Restaurants() {
               ))}
             </div>
             {/* Right Arrow */}
-            <button
-              onClick={handleRightClick}
-              className="w-10 h-10 flex items-center justify-center text-lg font-bold text-gray-700"
-            >
-              &gt;
-            </button>
+            <div>
+              <button
+                onClick={handleRightClick}
+                className="w-9 h-9 ml-1 flex items-center justify-center text-lg font-bold text-white bg-[#b1a68e] rounded-full hover:bg-[#938975] p-2"
+              >
+                <SlArrowRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -156,20 +160,23 @@ export default function Restaurants() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {allRestaurants.map((restaurant, index) => {
               let buttonColor;
-              if (index % 7 === 0) buttonColor = "bg-[#5c644f]";
-              else if (index % 7 === 1) buttonColor = "bg-[#b3894d]";
-              else if (index % 7 === 2) buttonColor = "bg-[#424d31]";
-              else if (index % 7 === 3) buttonColor = "bg-[#9c5a25]";
-              else if (index % 7 === 4) buttonColor = "bg-[#5c644f]";
-              else if (index % 7 === 5) buttonColor = "bg-[#d4ab80]";
-              else buttonColor = "bg-[#cb9d69]";
+              if (index % 7 === 0) buttonColor = 'bg-[#5c644f]';
+              else if (index % 7 === 1) buttonColor = 'bg-[#b3894d]';
+              else if (index % 7 === 2) buttonColor = 'bg-[#424d31]';
+              else if (index % 7 === 3) buttonColor = 'bg-[#9c5a25]';
+              else if (index % 7 === 4) buttonColor = 'bg-[#5c644f]';
+              else if (index % 7 === 5) buttonColor = 'bg-[#d4ab80]';
+              else buttonColor = 'bg-[#cb9d69]';
 
               return (
-                <div key={index} className="bg-white rounded-lg overflow-hidden flex flex-col transition-transform duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02]">
+                <div
+                  key={index}
+                  className="bg-white rounded-lg overflow-hidden flex flex-col transition-transform duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02]"
+                >
                   <div className="h-48 relative">
-                    <img 
-                      src={restaurant.image || "/placeholder.svg"} 
-                      alt={restaurant.name} 
+                    <img
+                      src={restaurant.image || '/placeholder.svg'}
+                      alt={restaurant.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -177,7 +184,9 @@ export default function Restaurants() {
                     <h3 className="font-serif text-lg mb-2">{restaurant.name}</h3>
                     <p className="text-xs text-[#717171] mb-4">{restaurant.description}</p>
                     <div className="mt-auto">
-                      <button className={`${buttonColor} text-white text-xs uppercase py-2 px-6 rounded-full transform transition-transform duration-300 active:scale-95`}>
+                      <button
+                        className={`${buttonColor} text-white text-xs uppercase py-2 px-6 rounded-full transform transition-transform duration-300 active:scale-95`}
+                      >
                         Book now
                       </button>
                     </div>

@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Restaurants from './restaurants/page';
 import { CiSearch } from "react-icons/ci";
 
 export default function Main() {
