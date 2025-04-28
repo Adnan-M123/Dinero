@@ -68,7 +68,7 @@ export default function Main() {
           ].map((place, i) => (
             <div
               key={i}
-              className="bg-white p-4 mb-2 rounded-xl shadow-lg w-48 text-center shadow-lg hover:scale-105 duration-200"
+              className="bg-white p-4 mb-2 rounded-xl w-48 text-center shadow-lg hover:scale-105 duration-200"
             >
               <img
                 src={place.image}

@@ -17,12 +17,12 @@ export default function LogInModal({ closeModal }) {
 
     document.addEventListener('mousedown', handleClickOutside);
 
-    // Prevent scrolling when LogIn is displayed
-    document.body.style.overflow = 'hidden';
+    // Add a class to the body to prevent scrolling but keep the scrollbar
+    document.body.classList.add('modal-open');
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'unset';
+      document.body.classList.remove('modal-open');
     };
   }, [closeModal]);
 
