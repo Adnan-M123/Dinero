@@ -1,0 +1,38 @@
+{
+  "restaurant": {
+    "name": "Klopa",
+    "description": "Klopa is a slang word for food in Bosnian language and we really mean good food! We are a non smoking, baby friendly restaurant located on the main pedestrian street in Sarajevo, in the city center.",
+    "address": "Trg fra Grge Martica 4, Sarajevo 71000 Bosnia and Herzegovina",
+    "website": "www.klopa.ba",
+    "phone": "+38712345678",
+    "workHours": [
+      { "day": "Monday", "hours": "10:00 - 22:00" },
+      { "day": "Tuesday", "hours": "10:00 - 22:00" },
+      { "day": "Wednesday", "hours": "10:00 - 22:00" },
+      { "day": "Thursday", "hours": "10:00 - 22:00" },
+      { "day": "Friday", "hours": "10:00 - 23:00" },
+      { "day": "Saturday", "hours": "09:00 - 23:00" },
+      { "day": "Sunday", "hours": "09:00 - 21:00" }
+    ]
+  },
+  "menu": {
+    "topSellers": [
+      { "name": "Klopa Burger", "price": "17.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Klopa Pileći Burger", "price": "15.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Pileći Mlinći", "price": "14.00", "image": "/placeholder.svg?height=200&width=300" }
+    ],
+    "burgers": [
+      { "name": "Klopa Burger", "price": "17.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Thai Biftek", "price": "20.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Pileći Mljeveni Burger", "price": "15.00", "image": "/placeholder.svg?height=200&width=300" }
+    ],
+    "breakfast": [
+      { "name": "Pancakes", "price": "12.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Omelette", "price": "10.00", "image": "/placeholder.svg?height=200&width=300" }
+    ],
+    "wok": [
+      { "name": "Chicken Wok", "price": "18.00", "image": "/placeholder.svg?height=200&width=300" },
+      { "name": "Beef Wok", "price": "20.00", "image": "/placeholder.svg?height=200&width=300" }
+    ]
+  }
+}

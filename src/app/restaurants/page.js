@@ -9,9 +9,9 @@ import { CiSearch } from 'react-icons/ci';
 
 export default function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
-  const scrollAmount = 250 * 2; // Adjust scroll distance
+  const scrollAmount = 250 * 2; 
 
   // Fetch restaurant data
   useEffect(() => {

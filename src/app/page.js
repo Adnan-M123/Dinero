@@ -6,10 +6,12 @@ import Footer from './components/Footer';
 import RestaurantCard from './components/RestaurantCard';
 import { useEffect, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function Main() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true); // Add loading state
+  const router = useRouter(); // Initialize router
 
   useEffect(() => {
     console.log('Fetching data from /restaurants.json...'); // Debugging message
@@ -68,6 +70,16 @@ export default function Main() {
             </button>
           )
         )}
+      </div>
+
+      {/* Test Button */}
+      <div className="flex justify-center bg-[#CDC1A5] py-4">
+        <button
+          className="px-6 py-2 rounded-lg bg-red-500 text-white shadow-lg hover:scale-105 duration-200"
+          onClick={() => router.push('/specific-restaurant')}
+        >
+          Test Button
+        </button>
       </div>
 
       {/* Featured Places */}

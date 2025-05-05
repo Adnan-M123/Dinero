@@ -23,7 +23,7 @@ export default function Navbar() {
     router.push('../');
   };
 
-  // Manage body class for the blur effect when modal is open
+  // Manage body class for the blur effect when modal is se
   useEffect(() => {
     if (isModalOpen) {
       document.body.classList.add('modal-open');
@@ -38,43 +38,47 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="flex justify-baseline items-center px-6 py-1 bg-[#283618] shadow-md">
-        {/* Left: Logo */}
-        <div>
-          <button
-            onClick={handleLandPageClick}
-            className="text-3xl font-bold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
-          >
-            <img src="../dinero-logo.png" alt="Logo" className="w-18 h-18 rounded-full" />
-          </button>
+      <header className="bg-[#283618] text-white p-4 flex items-center justify-between">
+        {/* Left Section: Logo and Title */}
+        <div className="flex items-center gap-4">
+          <img
+            src="../dinero-logo.png"
+            alt="Dinero Logo"
+            className="w-12 h-12 rounded-full"
+          />
+          <h1 className="text-xl font-semibold">HOME</h1>
         </div>
 
-        <div className="flex flex-1 items-end">
-          <div className="flex gap-7 mt-4 pl-9">
-            <button
-              onClick={handleLandPageClick}
-              className="text-sm font-semibold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
-            >
-              Discover
-            </button>
-            <button
-              onClick={handleRestaurantsClick}
-              className="text-sm font-semibold text-white hover:text-gray-300 cursor-pointer hover:scale-105"
-            >
-              Restaurants
-            </button>
-          </div>
-          <div className="flex justify-end w-full">
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-[#283618] font-bold bg-white rounded-lg hover:bg-gray-300 cursor-pointer hover:scale-105"
-              onClick={handleLoginClick}
-            >
-              <IoLogInOutline style={{ fontSize: '24px' }} />
-              Log In
-            </button>
-          </div>
+        {/* Navigation Links */}
+        <nav className="hidden md:flex space-x-8">
+          <button
+            onClick={handleLandPageClick}
+            className="hover:underline text-sm font-semibold text-white"
+          >
+            Discover
+          </button>
+          <button
+            onClick={handleRestaurantsClick}
+            className="hover:underline text-sm font-semibold text-white"
+          >
+            Restaurants
+          </button>
+          
+        </nav>
+
+        {/* Right Section: Sign Up and Log In Buttons */}
+        <div className="flex gap-2">
+          <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
+            Sign up
+          </button>
+          <button
+            onClick={handleLoginClick}
+            className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
+          >
+            Log in
+          </button>
         </div>
-      </nav>
+      </header>
 
       {/* Conditionally render LogInModal */}
       {isModalOpen && <LogInModal closeModal={() => setIsModalOpen(false)} />}
