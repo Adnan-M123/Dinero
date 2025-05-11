@@ -2,19 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import LogInModal from './LogInModal';
-import { IoLogInOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
   const router = useRouter();
 
-  // Handle the button click to open the modal
+  // Open login modal
   const handleLoginClick = () => {
     setIsModalOpen(true);
   };
 
-  // Navigate to Restaurants page
+  // Function that sets user as logged in
+  const handleSuccessfulLogin = () => {
+    setIsLoggedIn(true);
+    setIsModalOpen(false); // Close modal after login
+  };
+
   const handleRestaurantsClick = () => {
     router.push('/restaurants');
   };
@@ -23,17 +28,10 @@ export default function Navbar() {
     router.push('../');
   };
 
-  // Manage body class for the blur effect when modal is se
+  // Manage modal effect
   useEffect(() => {
-    if (isModalOpen) {
-      document.body.classList.add('modal-open');
-    } else {
-      document.body.classList.remove('modal-open');
-    }
-
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
+    document.body.classList.toggle('modal-open', isModalOpen);
+    return () => document.body.classList.remove('modal-open');
   }, [isModalOpen]);
 
   return (
@@ -63,25 +61,38 @@ export default function Navbar() {
           >
             Restaurants
           </button>
-          
+          <button onClick={() => {router.push('/profiles/commonUserProfile')}}>
+            Allah1
+          </button>
+          <button onClick={() => {router.push('/profiles/restaurantAdminProfile')}}>
+            Allah2
+          </button>
         </nav>
 
-        {/* Right Section: Sign Up and Log In Buttons */}
+        {/* Conditional Rendering for Authentication */}
         <div className="flex gap-2">
-          <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
-            Sign up
-          </button>
-          <button
-            onClick={handleLoginClick}
-            className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
-          >
-            Log in
-          </button>
+          {isLoggedIn ? (
+            <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
+              Profile
+            </button>
+          ) : (
+            <>
+              <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
+                Sign up
+              </button>
+              <button
+                onClick={handleLoginClick}
+                className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
+              >
+                Log in
+              </button>
+            </>
+          )}
         </div>
       </header>
 
-      {/* Conditionally render LogInModal */}
-      {isModalOpen && <LogInModal closeModal={() => setIsModalOpen(false)} />}
+      {/* LogInModal - Ensuring handleSuccessfulLogin updates state */}
+      {isModalOpen && <LogInModal closeModal={() => setIsModalOpen(false)} onLogin={handleSuccessfulLogin} />}
     </>
   );
 }

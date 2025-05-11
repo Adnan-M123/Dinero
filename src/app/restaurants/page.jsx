@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import React, { useEffect, useState, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -13,26 +14,20 @@ export default function Restaurants() {
   const scrollRef = useRef(null);
   const scrollAmount = 250 * 2; 
 
-  // Fetch restaurant data
   useEffect(() => {
-    fetch('/restaurants.json')
+    axios.get('/restaurants.json')
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch restaurants.json');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // Repeat the data to show more restaurants
-        const repeatedData = Array.from({ length: 20 }, (_, i) => data[i % data.length]);
-        setRestaurants(repeatedData);
-        setLoading(false);
+        const repeatedData = Array.from({ length: 20 }, (_, i) => response.data[i % response.data.length]);
+        setRestaurants(repeatedData); // Ensures 20 items are set
       })
       .catch(error => {
-        console.error('Error fetching restaurants:', error);
+        console.error("Error fetching restaurants:", error);
+      })
+      .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, []); //ensures its loaded only once if state remains the same
+  
 
   const categories = [
     'Burgers',
