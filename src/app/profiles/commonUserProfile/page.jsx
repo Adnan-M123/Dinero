@@ -7,6 +7,7 @@ import { CgProfile } from "react-icons/cg";
 import { PiCalendarDuotone } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbLogout } from "react-icons/tb";
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("upcoming");
@@ -24,6 +25,23 @@ const navItems = [
     icon: <IoSettingsOutline className="text-xl" />,
   },
 ];
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [reservationToCancel, setReservationToCancel] = useState(null);
+
+const handleCancelClick = (reservation) => {
+  setReservationToCancel(reservation);
+  setIsModalOpen(true);
+};
+
+const handleConfirmCancel = () => {
+  // Here you would normally send an API request to cancel
+  console.log("Canceled reservation:", reservationToCancel);
+
+  toast.success(" Your reservation is successfully canceled");
+
+  // Close modal
+  setIsModalOpen(false);
+};
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf4e6] text-[#4A503D]">
       <Navbar />
@@ -112,12 +130,13 @@ const navItems = [
                           <span>⏰ {res.time}</span>
                         </div>
                         <div className="mt-4 flex gap-2">
-                          <button className="rounded-md bg-[#4A503D] px-3 py-1 text-sm text-white hover:bg-[#3c4431]">
-                            Modify
-                          </button>
-                          <button className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm text-[#4A503D] hover:bg-[#b1a68e]">
-                            Cancel
-                          </button>
+                          
+                          <button
+  className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm text-[#4A503D] hover:bg-[#b1a68e]"
+  onClick={() => handleCancelClick(res)}
+>
+  Cancel
+</button>
                         </div>
                       </div>
                     </div>
@@ -224,7 +243,41 @@ const navItems = [
               )}
             </div>
           </div>
-        </main>
+        </main>{/* Modal */}
+{isModalOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    {/* Backdrop with blur and transparency */}
+    <div
+      className="absolute inset-0 bg-black"
+      style={{ opacity: 0.3, backdropFilter: 'blur(4px)' }}
+      onClick={() => setIsModalOpen(false)}
+    ></div>
+
+    {/* Modal Content */}
+    <div className="z-10 w-[400px] rounded-lg border border-[#b1a68e] bg-white p-6 shadow-xl">
+      <h3 className="mb-4 text-lg font-semibold text-[#4A503D]">Confirm Cancellation</h3>
+      <p className="mb-6 text-sm text-[#938975]">
+        Are you sure you want to cancel this reservation?
+      </p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-4 py-1.5 text-sm hover:bg-[#b1a68e] transition"
+        >
+          No
+        </button>
+        <button
+          onClick={handleConfirmCancel}
+          className="rounded-md bg-red-600 px-4 py-1.5 text-sm text-white hover:bg-red-700 transition"
+        >
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+<ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} />
       </div>
       <Footer />
     </div>

@@ -7,6 +7,8 @@ import { TbLogout } from "react-icons/tb";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
 import { IoRestaurantOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
+import { IoIosPeople } from "react-icons/io";
+import { FaRegCalendarCheck } from "react-icons/fa6";
 
 export default function AdminProfilePage() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -24,6 +26,15 @@ export default function AdminProfilePage() {
       icon: <IoSettingsOutline className="text-xl" />,
     },
   ];
+  const Menu=[
+                      { title: "Today's Reservations",
+                         icon: <IoIosPeople className="text-xl"/>,
+                        value: "5" },
+                      { title: "Available Tables",
+                         icon: <FaRegCalendarCheck className="text-xl"/>,
+                        value: "12" },
+                     
+                    ];
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf4e6] text-[#4A503D]">
       <Navbar />
@@ -64,7 +75,8 @@ export default function AdminProfilePage() {
                 <h2 className="text-2xl font-bold text-[#4A503D]">Italian Bistro</h2>
                 <p className="text-[#938975]">admin@italianbistro.com</p>
               </div>
-              <button className="sm:ml-auto rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm hover:bg-[#b1a68e]">
+              <button className="sm:ml-auto rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm hover:bg-[#b1a68e]"
+              onClick={() => setActiveTab("settings")}>
                 Edit Profile
               </button>
             </div>
@@ -93,12 +105,8 @@ export default function AdminProfilePage() {
                 <div className="space-y-4 pt-4">
                   <h3 className="text-lg font-medium text-[#4A503D]">Restaurant Dashboard</h3>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    {[
-                      { title: "Today's Reservations", value: "12", icon: "📅" },
-                      { title: "Available Tables", value: "8", icon: "🪑" },
-                      { title: "This Week's Revenue", value: "$3,450", icon: "💰" },
-                    ].map((metric, idx) => (
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                    {Menu.map((metric, idx) => (
                       <div key={idx} className="rounded-lg border border-[#CDC1A5] bg-white p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -276,6 +284,34 @@ export default function AdminProfilePage() {
                           <option value="60">60 minutes</option>
                         </select>
                       </div>
+                      <div className="grid gap-2">
+  <label className="text-sm font-medium" htmlFor="restaurant-icon">
+    Restaurant Icon
+  </label>
+  <p className="text-xs text-[#938975]">Example: https://example.com/icon.png </p>
+  <div className="flex items-center gap-2">
+    <input
+      id="restaurant-icon"
+      type="text"
+      defaultValue="https://example.com/icon.png "
+      disabled
+      className="w-full rounded-md border border-[#b1a68e] bg-[#fbf4e6] px-3 py-2 text-sm"
+    />
+    <button
+      type="button"
+      onClick={() => {
+        const input = document.getElementById("restaurant-icon");
+        if (input) {
+          input.disabled = false;
+          input.focus();
+        }
+      }}
+      className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm hover:bg-[#b1a68e]"
+    >
+      Update
+    </button>
+  </div>
+</div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <div className="text-sm font-medium">Require Confirmation</div>
