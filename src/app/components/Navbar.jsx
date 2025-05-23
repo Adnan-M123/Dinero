@@ -11,7 +11,7 @@ export default function Navbar() {
 
   // Open login modal
   const handleLoginClick = () => {
-    setIsModalOpen(true);
+    router.push('/login');
   };
 
   // Function that sets user as logged in
