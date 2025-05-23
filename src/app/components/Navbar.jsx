@@ -65,11 +65,14 @@ export default function Navbar() {
           >
             Restaurants
           </button>
-          <button onClick={() => {router.push('/profiles/commonUserProfile')}}>
-            Allah1
+          <button onClick={() => {router.push('/profiles/commonUserProfile')}}
+            className="hover:underline text-sm font-semibold text-white">
+            Profile
           </button>
-          <button onClick={() => {router.push('/profiles/restaurantAdminProfile')}}>
-            Allah2
+          <button onClick={() => {router.push('/profiles/restaurantAdminProfile')}}
+            className="hover:underline text-sm font-semibold text-white">
+
+            Admin Panel
           </button>
         </nav>
 

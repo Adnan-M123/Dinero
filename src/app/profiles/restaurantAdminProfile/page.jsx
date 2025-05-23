@@ -3,10 +3,27 @@
 import { useState } from "react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
+import { TbLogout } from "react-icons/tb";
+import { TbBrandGoogleAnalytics } from "react-icons/tb";
+import { IoRestaurantOutline } from "react-icons/io5";
+import { IoSettingsOutline } from "react-icons/io5";
 
 export default function AdminProfilePage() {
   const [activeTab, setActiveTab] = useState("dashboard")
-
+  const navItems = [
+    {
+      label: 'Dashboard',
+      icon: <TbBrandGoogleAnalytics className="text-xl" />, 
+    },
+    {
+      label: 'Restaurant',
+      icon: <IoRestaurantOutline  className="text-xl" />,
+    },
+    {
+      label: 'Settings',
+      icon: <IoSettingsOutline className="text-xl" />,
+    },
+  ];
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf4e6] text-[#4A503D]">
       <Navbar />
@@ -14,11 +31,7 @@ export default function AdminProfilePage() {
       <div className="flex flex-1">
         <aside className="hidden w-[200px] flex-col border-r border-[#b1a68e] bg-[#CDC1A5] sm:flex">
           <nav className="grid gap-2 p-4">
-            {[
-              { icon: "📊", label: "Dashboard", value: "dashboard" },
-              { icon: "🍽️", label: "Restaurant", value: "restaurant" },
-              { icon: "⚙️", label: "Settings", value: "settings" },
-            ].map((item) => (
+            {navItems.map((item) => (
               <button
                 key={item.value}
                 onClick={() => setActiveTab(item.value)}
@@ -31,7 +44,7 @@ export default function AdminProfilePage() {
               </button>
             ))}
             <button className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-red-600 hover:bg-red-100">
-              <span className="text-sm">🚪</span>
+              <span className="text-sm"><TbLogout className="text-xl"/></span>
               Logout
             </button>
           </nav>
