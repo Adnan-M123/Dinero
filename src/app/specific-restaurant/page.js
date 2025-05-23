@@ -13,7 +13,7 @@ import { TbWorldWww } from 'react-icons/tb';
 import { FaPhoneFlip } from 'react-icons/fa6';
 
 export default function RestaurantPage() {
-  const [menu, setMenu] = useState(null);
+  const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +25,7 @@ export default function RestaurantPage() {
         return response.json();
       })
       .then(data => {
+        console.log('Fetched menu:', data);
         setMenu(data);
         setLoading(false);
       })
@@ -88,7 +89,9 @@ export default function RestaurantPage() {
                   <div className="flex items-center gap-x-2">
                     <HiLocationMarker className="text-5xl" />
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(menu?.restaurant?.address)}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        menu?.restaurant?.address
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:underline"
@@ -109,10 +112,7 @@ export default function RestaurantPage() {
                   </div>
                   <div className="flex items-center gap-x-2 mb-2">
                     <FaPhoneFlip className="text-lg" />
-                    <a
-                      href={`tel:${menu?.restaurant?.phone}`}
-                      className="hover:underline"
-                    >
+                    <a href={`tel:${menu?.restaurant?.phone}`} className="hover:underline">
                       {menu?.restaurant?.phone}
                     </a>
                   </div>
@@ -137,7 +137,7 @@ export default function RestaurantPage() {
         <div className="flex flex-col w-full mt-10">
           <h2 className="text-3xl font-serif font-bold mb-4">Top Sellers</h2>
           <div className="grid grid-cols-3 gap-4">
-            {menu?.topSellers?.length > 0 ? (
+            {/* {menu?.topSellers?.length > 0 ? (
               menu.topSellers.map((item, index) => (
                 <FoodItem
                   key={index}
@@ -150,6 +150,21 @@ export default function RestaurantPage() {
               ))
             ) : (
               <p>No top sellers available.</p>
+            )} */}
+
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <div className="loader"></div> {/* Add spinner animation */}
+                <p className="ml-4 text-gray-600">Loading items...</p>
+              </div>
+            ) : menu?.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {menu.TopSellers.map((item, index) => (
+                  <FoodItem key={index} name={item.name} image={item.image} price={item.price} />
+                ))}
+              </div>
+            ) : (
+              <p>No items available.</p>
             )}
           </div>
         </div>

@@ -15,8 +15,9 @@ export default function Main() {
 
   useEffect(() => {
     console.log('Fetching data from /restaurants.json...'); // Debugging message
-  
-    axios.get('/restaurants.json')
+
+    axios
+      .get('/restaurants.json')
       .then(response => {
         console.log('Fetched data:', response.data); // Axios automatically parses JSON
         setRestaurants(response.data);
@@ -27,7 +28,6 @@ export default function Main() {
         setLoading(false); // Set loading to false even if there's an error
       });
   }, []); // Ensures it runs only once when the component mounts
-  
 
   return (
     <div className="bg-[#4A503D] text-white min-h-screen font-serif">

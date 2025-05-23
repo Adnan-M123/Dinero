@@ -11,7 +11,7 @@ export default function Navbar() {
 
   // Open login modal
   const handleLoginClick = () => {
-    setIsModalOpen(true);
+    router.push('/login');
   };
 
   // Function that sets user as logged in
@@ -28,7 +28,11 @@ export default function Navbar() {
     router.push('../');
   };
 
-  // Manage modal effect
+  const handleSignUpClick = () => {
+    router.push('/signup');
+  };
+
+  // Manage body class for the blur effect when modal is se
   useEffect(() => {
     document.body.classList.toggle('modal-open', isModalOpen);
     return () => document.body.classList.remove('modal-open');
@@ -71,23 +75,15 @@ export default function Navbar() {
 
         {/* Conditional Rendering for Authentication */}
         <div className="flex gap-2">
-          {isLoggedIn ? (
-            <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
-              Profile
-            </button>
-          ) : (
-            <>
-              <button className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
-                Sign up
-              </button>
-              <button
-                onClick={handleLoginClick}
-                className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
-              >
-                Log in
-              </button>
-            </>
-          )}
+          <button onClick={handleSignUpClick} className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
+            Sign up
+          </button>
+          <button
+            onClick={handleLoginClick}
+            className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
+          >
+            Log in
+          </button>
         </div>
       </header>
 
