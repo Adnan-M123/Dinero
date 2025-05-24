@@ -6,33 +6,28 @@ import Footer from './components/Footer';
 import RestaurantCard from './components/RestaurantCard';
 import { useEffect, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 export default function Main() {
   const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const router = useRouter(); // Initialize router
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    console.log('Fetching data from /restaurants.json...'); // Debugging message
-
     axios
-      // .get('/restaurants.json')
-      .get('http://localhost:5001/api/restaurant')
+      .get('http://localhost:5001/api/restaurants') // Connects to your backend/database
       .then(response => {
-        console.log('Fetched data:', response.data); // Axios automatically parses JSON
         setRestaurants(response.data);
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       })
       .catch(error => {
-        console.error('Error loading restaurants:', error); // Debugging message
-        setLoading(false); // Set loading to false even if there's an error
+        console.error('Error loading restaurants:', error);
+        setLoading(false);
       });
-  }, []); // Ensures it runs only once when the component mounts
+  }, []);
 
   return (
     <div className="bg-[#4A503D] text-white min-h-screen font-serif">
-      {/* Navbar */}
       <Navbar />
 
       {/* Hero Section */}
@@ -77,7 +72,7 @@ export default function Main() {
       <div className="flex justify-center bg-[#CDC1A5] py-4">
         <button
           className="px-6 py-2 rounded-lg bg-red-500 text-white shadow-lg hover:scale-105 duration-200"
-          onClick={() => router.push('/specific-restaurant')}
+          onClick={() => router.push('//specific-restaurant')}
         >
           Test Button
         </button>
@@ -89,13 +84,14 @@ export default function Main() {
         <div className="flex justify-center gap-6 px-10">
           {loading ? (
             <div className="flex flex-col items-center">
-              <div className="loader"></div> {/* Spinner */}
+              <div className="loader"></div>
               <p className="mt-4 text-gray-600">Loading restaurants...</p>
             </div>
           ) : restaurants.length > 0 ? (
-            restaurants.map((place, i) => (
+            restaurants.slice(0, 5).map((place, i) => (
               <RestaurantCard
-                key={i}
+                key={place.id || i}
+                id={place.id} // Pass the id here!
                 name={place.name}
                 description={place.description}
                 image={place.image}
@@ -130,7 +126,6 @@ export default function Main() {
         ))}
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

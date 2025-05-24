@@ -1,33 +1,10 @@
-// import React from 'react';
-// import Image from 'next/image';
-
-// export default function FoodItem({ item }) {
-//   return (
-//     <div className="bg-white p-4 rounded-xl w-48 text-center shadow-lg hover:scale-105 duration-200">
-//       {/* Image Section */}
-//       <div className="relative w-full h-32">
-//         <Image
-//           src={item.image || '/placeholder.svg'}
-//           alt={item.name}
-//           fill
-//           className="object-cover rounded-lg"
-//         />
-//       </div>
-
-//       {/* Text Section */}
-//       <h3 className="mt-2 font-bold">{item.name}</h3>
-//       <p className="text-sm text-gray-600">{item.price} KM</p>
-//     </div>
-//   );
-// }
-
-
-export default function FoodItem({ name, image, price }) {
+export default function FoodItem({ name, image, price, description }) {
   return (
-    <div className="bg-white mb-2 rounded-xl w-48 shadow-lg hover:scale-105 duration-200">
-      <img src={image} alt={name} className="w-full h-32 object-cover rounded-lg" />
-      <h3 className="mt-2 font-bold">{name}</h3>
-      <p className="text-sm text-gray-600">{price}</p>
+    <div className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center justify-between h-full transition-transform hover:scale-105 duration-200">
+      <img src={image} alt={name} className="w-full h-32 object-cover rounded-lg mb-2" />
+      <h3 className="mt-2 font-bold text-lg text-center">{name}</h3>
+      <p className="text-xs text-gray-500 text-center mb-2 line-clamp-2">{description}</p>
+      <span className="text-[#4A503D] font-bold text-lg mt-auto">{price} KM</span>
     </div>
   );
 }

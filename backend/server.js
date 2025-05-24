@@ -7,6 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Test root route
+app.get('/', (req, res) => {
+    res.send('API is running');
+  });
+
 // Mount your users API
 app.use('/api/users', require('./routes/users'));
 app.use('/api/restaurants', require('./routes/restaurants'));
