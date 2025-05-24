@@ -17,7 +17,8 @@ export default function Main() {
     console.log('Fetching data from /restaurants.json...'); // Debugging message
 
     axios
-      .get('/restaurants.json')
+      // .get('/restaurants.json')
+      .get('http://localhost:5001/api/restaurant')
       .then(response => {
         console.log('Fetched data:', response.data); // Axios automatically parses JSON
         setRestaurants(response.data);
