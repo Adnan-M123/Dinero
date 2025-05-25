@@ -4,8 +4,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Use next/navigation for app directory
-// import '../styles/index.css'; // Adjust path if needed
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [msg, setMsg] = useState('');
 
   // Validate email format
   const validateEmail = () => {
@@ -42,7 +43,7 @@ export default function LoginPage() {
   };
 
   // Handle form submission
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     const validEmail = validateEmail();
     const validPassword = validatePassword();
@@ -51,8 +52,19 @@ export default function LoginPage() {
       return;
     }
 
-    // Redirect to homepage after successful login
-    router.push('/');
+    try {
+      const res = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+      // Store JWT in localStorage or sessionStorage
+      if (staySignedIn) {
+        localStorage.setItem('token', res.data.token);
+      } else {
+        sessionStorage.setItem('token', res.data.token);
+      }
+      setMsg('Login successful!');
+      setTimeout(() => router.push('/'), 1000);
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Login failed');
+    }
   };
 
   return (
@@ -124,6 +136,8 @@ export default function LoginPage() {
             Sign in
           </button>
         </form>
+
+        <div className="text-center mt-6 text-sm text-[#283618]">{msg}</div>
 
         <div className="text-center mt-6 text-sm text-[#283618]">
           <span>By signing in, you agree to the </span>

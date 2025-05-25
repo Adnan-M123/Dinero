@@ -369,7 +369,7 @@ export default function AdminProfilePage() {
           </div>
         </main>
       </div>
-      <Footer />
+   
     </div>
   )
 }
