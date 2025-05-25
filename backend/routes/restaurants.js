@@ -163,4 +163,56 @@ router.get('/search', (req, res) => {
   });
 });
 
+// GET /api/menu-items - fetch all menu items (meals)
+router.get('/menu-items', (req, res) => {
+  const sql = 'SELECT id, name FROM MenuItems ORDER BY name';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching menu items:', err);
+      return res.status(500).json({ error: 'Failed to fetch menu items' });
+    }
+    res.json(results);
+  });
+});
+
+// // GET /api/restaurants/:id/menu-items - fetch menu items for a specific restaurant
+// router.get('/:id/menu-items', (req, res) => {
+//   const restaurantId = req.params.id;
+//   const sql = `
+//     SELECT mi.*, c.name as category_name
+//     FROM MenuItems mi
+//     LEFT JOIN MenuItemCategories mic ON mic.menu_item_id = mi.id
+//     LEFT JOIN Categories c ON c.id = mic.category_id
+//     WHERE mi.restaurant_id = ?
+//     ORDER BY c.name, mi.name
+//   `;
+//   db.query(sql, [restaurantId], (err, results) => {
+//     if (err) {
+//       console.error('Error fetching menu items:', err);
+//       return res.status(500).json({ error: 'Failed to fetch menu items' });
+//     }
+//     res.json(results);
+//   });
+// });
+
+// backend/routes/restaurants.js, for specific restaurant menu items page
+router.get('/:id/menu-items', (req, res) => {
+  const restaurantId = req.params.id;
+  const sql = `
+    SELECT mi.*, c.name as category_name
+    FROM MenuItems mi
+    LEFT JOIN MenuItemCategories mic ON mic.menu_item_id = mi.id
+    LEFT JOIN Categories c ON c.id = mic.category_id
+    WHERE mi.restaurant_id = ?
+    ORDER BY c.name, mi.name
+  `;
+  db.query(sql, [restaurantId], (err, results) => {
+    if (err) {
+      console.error('Error fetching menu items:', err);
+      return res.status(500).json({ error: 'Failed to fetch menu items' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;

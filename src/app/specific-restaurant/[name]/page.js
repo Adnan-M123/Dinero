@@ -10,6 +10,7 @@ import { CiSearch } from 'react-icons/ci';
 import { HiLocationMarker } from 'react-icons/hi';
 import { TbWorldWww } from 'react-icons/tb';
 import { FaPhoneFlip } from 'react-icons/fa6';
+import axios from 'axios';
 
 const daysOfWeek = [
   '', // 0 index not used
@@ -28,6 +29,7 @@ export default function RestaurantPage() {
   const [workHours, setWorkHours] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [menuByCategory, setMenuByCategory] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function RestaurantPage() {
       });
 
     // Fetch menu items
-    fetch(`http://localhost:5001/api/restaurants/name/${name}/menu`)
+    fetch(`http://localhost:5001/api/restaurants/name/${name}/menu-items`)
       .then(response => response.json())
       .then(data => setMenuItems(data))
       .catch(error => {
@@ -74,15 +76,31 @@ export default function RestaurantPage() {
       });
   }, [name]);
 
+  useEffect(() => {
+    if (!restaurant?.id) return;
+    axios
+      .get(`http://localhost:5001/api/restaurants/${restaurant.id}/menu-items`)
+      .then(res => {
+        // Group menu items by category
+        const menuByCat = {};
+        res.data.forEach(item => {
+          if (!menuByCat[item.category_name]) menuByCat[item.category_name] = [];
+          menuByCat[item.category_name].push(item);
+        });
+        setMenuByCategory(menuByCat);
+      })
+      .catch(err => console.error('Error fetching menu items:', err));
+  }, [restaurant]);
+
   // Group menu items by category name
-  const menuByCategory = {};
+  const menuGroupedByCategory = {};
   menuItems.forEach(item => {
     if (!item.categories) return;
     item.categories.forEach(cat => {
       // If cat is an object, use cat.name; if string, use as is
       const catName = typeof cat === 'string' ? cat : cat.name;
-      if (!menuByCategory[catName]) menuByCategory[catName] = [];
-      menuByCategory[catName].push(item);
+      if (!menuGroupedByCategory[catName]) menuGroupedByCategory[catName] = [];
+      menuGroupedByCategory[catName].push(item);
     });
   });
 
