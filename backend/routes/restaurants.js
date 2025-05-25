@@ -98,4 +98,36 @@ router.get('/name/:name/categories', (req, res) => {
   });
 });
 
+// GET /api/categories - fetch all categories
+router.get('/categories', (req, res) => {
+  const sql = 'SELECT id, name FROM Categories ORDER BY name';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching categories:', err);
+      return res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+    res.json(results);
+  });
+});
+
+// GET /api/restaurants/by-category/:categoryId
+router.get('/by-category/:categoryId', (req, res) => {
+  const categoryId = req.params.categoryId;
+  const sql = `
+    SELECT DISTINCT r.*
+    FROM Restaurants r
+    JOIN MenuItems mi ON mi.restaurant_id = r.id
+    JOIN MenuItemCategories mic ON mic.menu_item_id = mi.id
+    WHERE mic.category_id = ?
+    ORDER BY r.name
+  `;
+  db.query(sql, [categoryId], (err, results) => {
+    if (err) {
+      console.error('Error fetching restaurants by category:', err);
+      return res.status(500).json({ error: 'Failed to fetch restaurants' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;

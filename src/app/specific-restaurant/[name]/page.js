@@ -158,14 +158,15 @@ export default function RestaurantPage() {
                 <div className="flex flex-col bg-[#484916]/80 p-4 rounded-xl mt-2 gap-y-1">
                   <h2 className="text-xl font-serif font-bold mb-2">Contact Info</h2>
                   <div className="flex items-center gap-x-2">
-                    <HiLocationMarker className="text-5xl" />
+                    <HiLocationMarker className="text-lg" /> {/* Changed from text-5xl to text-lg */}
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                         restaurant?.address
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:underline"
+                      className="hover:underline truncate max-w-[200px] block"
+                      title={restaurant?.address}
                     >
                       {restaurant?.address}
                     </a>
@@ -176,14 +177,19 @@ export default function RestaurantPage() {
                       href={restaurant?.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:underline"
+                      className="hover:underline truncate max-w-[200px] block"
+                      title={restaurant?.website}
                     >
                       {restaurant?.website}
                     </a>
                   </div>
                   <div className="flex items-center gap-x-2 mb-2">
                     <FaPhoneFlip className="text-lg" />
-                    <a href={`tel:${restaurant?.phone}`} className="hover:underline">
+                    <a
+                      href={`tel:${restaurant?.phone}`}
+                      className="hover:underline truncate max-w-[200px] block"
+                      title={restaurant?.phone}
+                    >
                       {restaurant?.phone}
                     </a>
                   </div>

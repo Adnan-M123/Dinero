@@ -68,16 +68,6 @@ export default function Main() {
         )}
       </div>
 
-      {/* Test Button */}
-      <div className="flex justify-center bg-[#CDC1A5] py-4">
-        <button
-          className="px-6 py-2 rounded-lg bg-red-500 text-white shadow-lg hover:scale-105 duration-200"
-          onClick={() => router.push('//specific-restaurant')}
-        >
-          Test Button
-        </button>
-      </div>
-
       {/* Featured Places */}
       <section className="py-12 bg-[#E7DDC4] text-black">
         <h2 className="text-3xl font-bold text-center mb-6">Featured places:</h2>

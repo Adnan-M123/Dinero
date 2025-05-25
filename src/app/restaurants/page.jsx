@@ -10,42 +10,33 @@ import { CiSearch } from 'react-icons/ci';
 
 export default function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const scrollRef = useRef(null);
   const scrollAmount = 250 * 2;
 
   useEffect(() => {
-    axios.get('http://localhost:5001/api/restaurants')
-      .then(response => {
-        setRestaurants(response.data); // Use all restaurants from DB, no repeats
-      })
-      .catch(error => {
-        console.error("Error fetching restaurants:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    // Fetch all categories
+    axios.get('http://localhost:5001/api/restaurants/categories')
+      .then(response => setCategories(response.data))
+      .catch(error => console.error("Error fetching categories:", error));
   }, []);
 
-  const categories = [
-    'Burgers',
-    'Steak',
-    'Pizza',
-    'Chicken',
-    'Fast food',
-    'Sandwich',
-    'Pasta',
-    'Dinner',
-    'Breakfast',
-    'Asian',
-    'Arabic',
-    'American',
-    'Desserts',
-    'Cooked meals',
-    'Cereals',
-    'Bowls',
-    'Vegan',
-  ];
+  useEffect(() => {
+    setLoading(true);
+    if (selectedCategory === 'all') {
+      axios.get('http://localhost:5001/api/restaurants')
+        .then(response => setRestaurants(response.data))
+        .catch(error => console.error("Error fetching restaurants:", error))
+        .finally(() => setLoading(false));
+    } else {
+      axios.get(`http://localhost:5001/api/restaurants/by-category/${selectedCategory}`)
+        .then(response => setRestaurants(response.data))
+        .catch(error => console.error("Error fetching restaurants by category:", error))
+        .finally(() => setLoading(false));
+    }
+  }, [selectedCategory]);
 
   const handleLeftClick = () => {
     scrollRef.current.scrollLeft -= scrollAmount;
@@ -91,7 +82,7 @@ export default function Restaurants() {
             <div>
               <button
                 onClick={handleLeftClick}
-                className="w-9 h-9 mr-1 flex items-center justify-center text-lg font-bold text-white bg-[#b1a68e] rounded-full hover:bg-[#938975] p-2"
+                className="w-9 h-9 mr-1 flex items-center justify-center text-lg  text-white bg-[#b1a68e] rounded-full hover:bg-[#938975] p-2"
               >
                 <SlArrowLeft size={16} />
               </button>
@@ -106,12 +97,28 @@ export default function Restaurants() {
                   display: none;
                 }
               `}</style>
-              {categories.map((category, index) => (
+              <button
+                key="all"
+                className={`px-6 py-2 rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap 
+                  ${selectedCategory === 'all'
+                    ? 'bg-[#283618] text-white'
+                    : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'}
+                `}
+                onClick={() => setSelectedCategory('all')}
+              >
+                All
+              </button>
+              {categories.map((category) => (
                 <button
-                  key={index}
-                  className="bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100 px-6 py-2  rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap"
+                  key={category.id}
+                  className={`px-6 py-2 rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap 
+                    ${selectedCategory === category.id
+                      ? 'bg-[#283618] text-white'
+                      : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'}
+                  `}
+                  onClick={() => setSelectedCategory(category.id)}
                 >
-                  {category}
+                  {category.name}
                 </button>
               ))}
             </div>
@@ -135,6 +142,10 @@ export default function Restaurants() {
             <div className="flex justify-center items-center">
               <div className="loader"></div>
               <p className="ml-4 text-gray-600">Loading restaurants...</p>
+            </div>
+          ) : restaurants.length === 0 ? (
+            <div className="text-center text-gray-600 py-8">
+              No restaurants found in this category.
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
