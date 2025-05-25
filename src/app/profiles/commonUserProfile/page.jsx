@@ -279,7 +279,7 @@ const handleConfirmCancel = () => {
 
 <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} />
       </div>
-      <Footer />
+
     </div>
   );
 }

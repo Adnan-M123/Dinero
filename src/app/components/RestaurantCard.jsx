@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRef, useEffect, useState } from 'react';
 
-export default function RestaurantCard({ name, image, description }) {
+export default function RestaurantCard({ id, name, image, description, category }) {
   const nameRef = useRef(null);
   const [isNameMultiline, setIsNameMultiline] = useState(false);
 
@@ -14,7 +14,7 @@ export default function RestaurantCard({ name, image, description }) {
   }, [name]);
 
   return (
-    <Link href={`/specific-restaurant/${encodeURIComponent(name)}`}>
+    <Link href={`/specific-restaurant/${encodeURIComponent(name)}?category=${category}`}>
       <div className="bg-white p-4 mb-2 rounded-xl w-48 text-center shadow-lg hover:scale-105 duration-200 cursor-pointer">
         <img src={image} alt={name} className="w-full h-32 object-cover rounded-lg" />
         <h3 ref={nameRef} className="mt-2 font-bold">{name}</h3>

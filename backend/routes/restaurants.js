@@ -130,4 +130,16 @@ router.get('/by-category/:categoryId', (req, res) => {
   });
 });
 
+// GET /api/restaurants/featured-categories
+router.get('/featured-categories', (req, res) => {
+  const sql = 'SELECT id, name FROM Categories WHERE featured = 1 ORDER BY name';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching featured categories:', err);
+      return res.status(500).json({ error: 'Failed to fetch featured categories' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;

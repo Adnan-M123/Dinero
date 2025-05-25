@@ -6,16 +6,16 @@ import Footer from './components/Footer';
 import RestaurantCard from './components/RestaurantCard';
 import { useEffect, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Main() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     axios
-      .get('http://localhost:5001/api/restaurants') // Connects to your backend/database
+      .get('http://localhost:5001/api/restaurants')
       .then(response => {
         setRestaurants(response.data);
         setLoading(false);
@@ -24,6 +24,12 @@ export default function Main() {
         console.error('Error loading restaurants:', error);
         setLoading(false);
       });
+
+    // Fetch only featured categories from the backend
+    axios
+      .get('http://localhost:5001/api/restaurants/featured-categories')
+      .then(response => setCategories(response.data))
+      .catch(error => console.error('Error loading categories:', error));
   }, []);
 
   return (
@@ -56,21 +62,18 @@ export default function Main() {
 
       {/* Categories */}
       <div className="flex justify-center gap-4 bg-[#CDC1A5] py-4">
-        {['Steak', 'Pasta', 'Bosnian Cuisine', 'Vegan', 'Asian Cuisine', 'Cafes'].map(
-          (category, index) => (
-            <button
-              key={index}
-              className="px-6 py-2 rounded-lg bg-[#4A503D] text-white shadow-lg hover:scale-105 duration-200"
-            >
-              {category}
+        {categories.map(category => (
+          <Link href={`/restaurants?category=${category.id}`} key={category.id}>
+            <button className="px-6 py-2 rounded-lg bg-[#4A503D] text-white shadow-lg hover:scale-105 duration-200">
+              {category.name}
             </button>
-          )
-        )}
+          </Link>
+        ))}
       </div>
 
       {/* Featured Places */}
       <section className="py-12 bg-[#E7DDC4] text-black">
-        <h2 className="text-3xl font-bold text-center mb-6">Featured places:</h2>
+        <h2 className="text-3xl text-center mb-6">Featured places:</h2>
         <div className="flex justify-center gap-6 px-10">
           {loading ? (
             <div className="flex flex-col items-center">
@@ -81,7 +84,7 @@ export default function Main() {
             restaurants.slice(0, 5).map((place, i) => (
               <RestaurantCard
                 key={place.id || i}
-                id={place.id} // Pass the id here!
+                id={place.id}
                 name={place.name}
                 description={place.description}
                 image={place.image}

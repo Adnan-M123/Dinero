@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 import React, { useEffect, useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RestaurantCard from '../components/RestaurantCard';
@@ -9,32 +10,63 @@ import { SlArrowLeft, SlArrowRight } from 'react-icons/sl';
 import { CiSearch } from 'react-icons/ci';
 
 export default function Restaurants() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'all';
+
   const [restaurants, setRestaurants] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const scrollRef = useRef(null);
+  const buttonRefs = useRef({});
+  const categoriesRowRef = useRef(null);
+  const menuSectionRef = useRef(null);
   const scrollAmount = 250 * 2;
 
   useEffect(() => {
     // Fetch all categories
-    axios.get('http://localhost:5001/api/restaurants/categories')
+    axios
+      .get('http://localhost:5001/api/restaurants/categories')
       .then(response => setCategories(response.data))
-      .catch(error => console.error("Error fetching categories:", error));
+      .catch(error => console.error('Error fetching categories:', error));
   }, []);
+
+  useEffect(() => {
+    setSelectedCategory(initialCategory);
+  }, [initialCategory]);
 
   useEffect(() => {
     setLoading(true);
     if (selectedCategory === 'all') {
-      axios.get('http://localhost:5001/api/restaurants')
+      axios
+        .get('http://localhost:5001/api/restaurants')
         .then(response => setRestaurants(response.data))
-        .catch(error => console.error("Error fetching restaurants:", error))
+        .catch(error => console.error('Error fetching restaurants:', error))
         .finally(() => setLoading(false));
     } else {
-      axios.get(`http://localhost:5001/api/restaurants/by-category/${selectedCategory}`)
+      axios
+        .get(`http://localhost:5001/api/restaurants/by-category/${selectedCategory}`)
         .then(response => setRestaurants(response.data))
-        .catch(error => console.error("Error fetching restaurants by category:", error))
+        .catch(error => console.error('Error fetching restaurants by category:', error))
         .finally(() => setLoading(false));
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (selectedCategory && buttonRefs.current[selectedCategory]) {
+      buttonRefs.current[selectedCategory].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  }, [selectedCategory, categories]);
+
+  useEffect(() => {
+    // Scroll to categories row
+    if (categoriesRowRef.current) {
+      categoriesRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [selectedCategory]);
 
@@ -44,6 +76,18 @@ export default function Restaurants() {
 
   const handleRightClick = () => {
     scrollRef.current.scrollLeft += scrollAmount;
+  };
+
+  const handleCategorySelect = catId => {
+    setSelectedCategory(catId);
+    // Update the URL
+    const params = new URLSearchParams(searchParams.toString());
+    if (catId === 'all') {
+      params.delete('category');
+    } else {
+      params.set('category', catId);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   return (
@@ -75,7 +119,7 @@ export default function Restaurants() {
       </div>
 
       {/* Categories */}
-      <section className="bg-[#CDC1A5] py-2">
+      <section ref={categoriesRowRef} className="bg-[#CDC1A5] py-2">
         <div className="flex justify-center gap-4 bg-[#CDC1A5] py-4 px-20">
           <div className="flex items-center w-full overflow-hidden">
             {/* Left Arrow */}
@@ -99,24 +143,30 @@ export default function Restaurants() {
               `}</style>
               <button
                 key="all"
+                ref={el => (buttonRefs.current['all'] = el)}
                 className={`px-6 py-2 rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap 
-                  ${selectedCategory === 'all'
-                    ? 'bg-[#283618] text-white'
-                    : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'}
+                  ${
+                    selectedCategory === 'all'
+                      ? 'bg-[#283618] text-white scale-105 transition-transform duration-200'
+                      : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'
+                  }
                 `}
-                onClick={() => setSelectedCategory('all')}
+                onClick={() => handleCategorySelect('all')}
               >
                 All
               </button>
-              {categories.map((category) => (
+              {categories.map(category => (
                 <button
                   key={category.id}
+                  ref={el => (buttonRefs.current[category.id] = el)}
                   className={`px-6 py-2 rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap 
-                    ${selectedCategory === category.id
-                      ? 'bg-[#283618] text-white'
-                      : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'}
+                    ${
+                      selectedCategory == category.id
+                        ? 'bg-[#283618] text-white scale-105 transition-transform duration-200'
+                        : 'bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100'
+                    }
                   `}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategorySelect(category.id)}
                 >
                   {category.name}
                 </button>
@@ -136,7 +186,7 @@ export default function Restaurants() {
       </section>
 
       {/* Restaurant Grid */}
-      <section className="bg-[#fbf4e6] py-8 flex-grow">
+      <section ref={menuSectionRef} className="bg-[#fbf4e6] py-8 flex-grow">
         <div className="max-w-7xl mx-auto px-4">
           {loading ? (
             <div className="flex justify-center items-center">
@@ -144,17 +194,17 @@ export default function Restaurants() {
               <p className="ml-4 text-gray-600">Loading restaurants...</p>
             </div>
           ) : restaurants.length === 0 ? (
-            <div className="text-center text-gray-600 py-8">
-              No restaurants found in this category.
-            </div>
+            <div className="text-center text-gray-600 py-8">No restaurants in this category.</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {restaurants.map((restaurant, index) => (
                 <RestaurantCard
                   key={restaurant.id || index}
+                  id={restaurant.id}
                   name={restaurant.name}
                   description={restaurant.description}
                   image={restaurant.image}
+                  category={selectedCategory} // Pass the current category
                 />
               ))}
             </div>
