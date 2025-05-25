@@ -1,23 +1,37 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import LogInModal from './LogInModal';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  // Open login modal
+  // Check login state on mount and when storage changes
+  useEffect(() => {
+    const checkLogin = () => {
+      if (typeof window !== 'undefined') {
+        setIsLoggedIn(
+          !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+        );
+      }
+    };
+    checkLogin();
+
+    // Listen for login/logout events from other tabs
+    window.addEventListener('storage', checkLogin);
+    return () => window.removeEventListener('storage', checkLogin);
+  }, []);
+
   const handleLoginClick = () => {
     router.push('/login');
   };
 
-  // Function that sets user as logged in
-  const handleSuccessfulLogin = () => {
-    setIsLoggedIn(true);
-    setIsModalOpen(false); // Close modal after login
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    setIsLoggedIn(false);
+    router.push('/');
   };
 
   const handleRestaurantsClick = () => {
@@ -31,12 +45,6 @@ export default function Navbar() {
   const handleSignUpClick = () => {
     router.push('/signup');
   };
-
-  // Manage body class for the blur effect when modal is se
-  useEffect(() => {
-    document.body.classList.toggle('modal-open', isModalOpen);
-    return () => document.body.classList.remove('modal-open');
-  }, [isModalOpen]);
 
   return (
     <>
@@ -65,33 +73,44 @@ export default function Navbar() {
           >
             Restaurants
           </button>
-          <button onClick={() => {router.push('/profiles/commonUserProfile')}}
-            className="hover:underline text-sm font-semibold text-white">
-            Profile
-          </button>
-          <button onClick={() => {router.push('/profiles/restaurantAdminProfile')}}
-            className="hover:underline text-sm font-semibold text-white">
-
-            Admin Panel
-          </button>
+          {isLoggedIn && (
+            <button
+              onClick={() => router.push('/profiles/commonUserProfile')}
+              className="hover:underline text-sm font-semibold text-white"
+            >
+              Profile
+            </button>
+          )}
+          {/* Optionally show admin panel only for admin users */}
+          {/* {isLoggedIn && isAdmin && (
+            <button ...>Admin Panel</button>
+          )} */}
         </nav>
 
         {/* Conditional Rendering for Authentication */}
         <div className="flex gap-2">
-          <button onClick={handleSignUpClick} className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
-            Sign up
-          </button>
-          <button
-            onClick={handleLoginClick}
-            className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
-          >
-            Log in
-          </button>
+          {!isLoggedIn ? (
+            <>
+              <button onClick={handleSignUpClick} className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]">
+                Sign up
+              </button>
+              <button
+                onClick={handleLoginClick}
+                className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
+              >
+                Log in
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="bg-[#CDC1A5] text-black px-4 py-1 rounded-full text-sm hover:bg-[#b1a68e]"
+            >
+              Log out
+            </button>
+          )}
         </div>
       </header>
-
-      {/* LogInModal - Ensuring handleSuccessfulLogin updates state */}
-      {isModalOpen && <LogInModal closeModal={() => setIsModalOpen(false)} onLogin={handleSuccessfulLogin} />}
     </>
   );
 }

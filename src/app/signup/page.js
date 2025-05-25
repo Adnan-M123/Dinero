@@ -5,9 +5,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-// import './styles/index.css';
-
-
+import axios from 'axios';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,6 +18,7 @@ export default function SignupPage() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [repasswordError, setRepasswordError] = useState('');
+  const [msg, setMsg] = useState('');
 
   // Validate username
   const validateUsername = () => {
@@ -66,7 +65,7 @@ export default function SignupPage() {
   };
 
   // Handle form submission
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     const isUsernameValid = validateUsername();
@@ -75,8 +74,17 @@ export default function SignupPage() {
     const isRePasswordValid = validateRePassword();
 
     if (isUsernameValid && isEmailValid && isPasswordValid && isRePasswordValid) {
-      // If all validations pass, navigate to homepage
-      router.push('/indexHomepageLoggedin.html'); // Adjust this route as needed
+      try {
+        await axios.post('http://localhost:5001/api/auth/register', {
+          username,
+          email,
+          password,
+        });
+        setMsg('Registration successful! Redirecting to login...');
+        setTimeout(() => router.push('/login'), 1500);
+      } catch (err) {
+        setMsg(err.response?.data?.error || 'Registration failed');
+      }
     }
   };
 
@@ -176,6 +184,10 @@ export default function SignupPage() {
             Privacy Policy
           </a>
           .
+        </div>
+
+        <div className="text-center mt-4 text-sm text-gray-600">
+          {msg}
         </div>
 
         <p className="text-center mt-4 text-sm text-gray-600">

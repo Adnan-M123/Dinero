@@ -93,7 +93,7 @@ router.get('/name/:name/categories', (req, res) => {
       console.error('Error fetching categories:', err);
       return res.status(500).json({ error: 'Failed to fetch categories' });
     }
-    console.log('Queried restaurant:', restaurantName, 'Categories:', results);
+    // console.log('Queried restaurant:', restaurantName, 'Categories:', results);
     res.json(results);
   });
 });
