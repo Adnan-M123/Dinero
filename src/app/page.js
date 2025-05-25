@@ -12,6 +12,7 @@ export default function Main() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     axios
@@ -32,6 +33,17 @@ export default function Main() {
       .catch(error => console.error('Error loading categories:', error));
   }, []);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    setLoading(true);
+    axios
+      .get(`http://localhost:5001/api/restaurants/search?q=${encodeURIComponent(search)}`)
+      .then(res => setRestaurants(res.data))
+      .catch(err => console.error('Search error:', err))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <div className="bg-[#4A503D] text-white min-h-screen font-serif">
       <Navbar />
@@ -44,19 +56,22 @@ export default function Main() {
         <div className="absolute inset-0 bg-opacity-40 flex flex-col items-center justify-center">
           <h1 className="text-5xl font-bold">RESTAURANTS</h1>
           <p className="mt-2">Find your next meal. Book the right place in time.</p>
-          <div className="search-bar flex items-center relative justify-center">
+          <form onSubmit={handleSearch} className="search-bar flex items-center relative justify-center">
             <input
               type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
               placeholder="Search restaurant or meal"
               className="mt-4 px-4 py-2 rounded-3xl w-80 text-white border-1 border-white"
             />
             <button
               id="search-button"
+              type="submit"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-2"
             >
               <CiSearch size={20} className="text-white" />
             </button>
-          </div>
+          </form>
         </div>
       </div>
 

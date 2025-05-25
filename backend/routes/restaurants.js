@@ -142,4 +142,25 @@ router.get('/featured-categories', (req, res) => {
   });
 });
 
+// GET /api/restaurants/search?q=...
+router.get('/search', (req, res) => {
+  const q = `%${req.query.q || ''}%`;
+  const sql = `
+    SELECT DISTINCT r.*
+    FROM Restaurants r
+    LEFT JOIN MenuItems mi ON mi.restaurant_id = r.id
+    LEFT JOIN MenuItemCategories mic ON mic.menu_item_id = mi.id
+    LEFT JOIN Categories c ON c.id = mic.category_id
+    WHERE r.name LIKE ? OR mi.name LIKE ? OR c.name LIKE ?
+    ORDER BY r.name
+  `;
+  db.query(sql, [q, q, q], (err, results) => {
+    if (err) {
+      console.error('Error searching restaurants:', err);
+      return res.status(500).json({ error: 'Failed to search restaurants' });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;
