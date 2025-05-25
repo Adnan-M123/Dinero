@@ -12,13 +12,12 @@ export default function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
-  const scrollAmount = 250 * 2; 
+  const scrollAmount = 250 * 2;
 
   useEffect(() => {
-    axios.get('/restaurants.json')
+    axios.get('http://localhost:5001/api/restaurants')
       .then(response => {
-        const repeatedData = Array.from({ length: 20 }, (_, i) => response.data[i % response.data.length]);
-        setRestaurants(repeatedData); // Ensures 20 items are set
+        setRestaurants(response.data); // Use all restaurants from DB, no repeats
       })
       .catch(error => {
         console.error("Error fetching restaurants:", error);
@@ -26,8 +25,7 @@ export default function Restaurants() {
       .finally(() => {
         setLoading(false);
       });
-  }, []); //ensures its loaded only once if state remains the same
-  
+  }, []);
 
   const categories = [
     'Burgers',
@@ -111,7 +109,6 @@ export default function Restaurants() {
               {categories.map((category, index) => (
                 <button
                   key={index}
-                  // className="px-6 py-2 rounded-lg bg-[#4A503D] text-white shadow-lg hover:scale-105 duration-200"
                   className="bg-[#4A503D] text-white hover:scale-105 transition-transform duration-100 px-6 py-2  rounded-lg shadow-md min-w-[150px] text-center whitespace-nowrap"
                 >
                   {category}
@@ -136,14 +133,14 @@ export default function Restaurants() {
         <div className="max-w-7xl mx-auto px-4">
           {loading ? (
             <div className="flex justify-center items-center">
-              <div className="loader"></div> {/* Add spinner animation */}
+              <div className="loader"></div>
               <p className="ml-4 text-gray-600">Loading restaurants...</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {restaurants.map((restaurant, index) => (
                 <RestaurantCard
-                  key={index}
+                  key={restaurant.id || index}
                   name={restaurant.name}
                   description={restaurant.description}
                   image={restaurant.image}

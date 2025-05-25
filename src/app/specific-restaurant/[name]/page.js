@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -18,7 +19,7 @@ const daysOfWeek = [
   'Thursday',
   'Friday',
   'Saturday',
-  'Sunday'
+  'Sunday',
 ];
 
 export default function RestaurantPage() {
@@ -26,6 +27,7 @@ export default function RestaurantPage() {
   const [restaurant, setRestaurant] = useState(null);
   const [workHours, setWorkHours] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,14 +61,50 @@ export default function RestaurantPage() {
       .catch(error => {
         console.error('Error loading menu items:', error);
       });
+
+    // Fetch categories
+    fetch(`http://localhost:5001/api/restaurants/name/${name}/categories`)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Fetched categories:', data); // <-- Add this
+        setCategories(data);
+      })
+      .catch(error => {
+        console.error('Error loading categories:', error);
+      });
   }, [name]);
 
+  // Group menu items by category name
+  const menuByCategory = {};
+  menuItems.forEach(item => {
+    if (!item.categories) return;
+    item.categories.forEach(cat => {
+      // If cat is an object, use cat.name; if string, use as is
+      const catName = typeof cat === 'string' ? cat : cat.name;
+      if (!menuByCategory[catName]) menuByCategory[catName] = [];
+      menuByCategory[catName].push(item);
+    });
+  });
+
+  const categoryRefs = useMemo(() => {
+    const refs = {};
+    categories.forEach(cat => {
+      refs[cat.name] = refs[cat.name] || React.createRef();
+    });
+    return refs;
+  }, [categories]);
+
+  const handleCategoryClick = catName => {
+    categoryRefs[catName]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (loading) return <div>Loading...</div>;
-  if (!restaurant) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#4A503D] text-white text-2xl">
-      Restaurant not found.
-    </div>
-  );
+  if (!restaurant)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#4A503D] text-white text-2xl">
+        Restaurant not found.
+      </div>
+    );
 
   return (
     <div className="bg-[#4A503D] text-white min-h-screen font-serif">
@@ -75,7 +113,7 @@ export default function RestaurantPage() {
       <div
         className="relative w-full h-[600px] bg-cover bg-center bg-fixed"
         style={{
-          backgroundImage: `url('${restaurant?.image || "/Klopa/klopa-restaurant.jpg"}')`
+          backgroundImage: `url('${restaurant?.image || '/Klopa/klopa-restaurant.jpg'}')`,
         }}
       >
         <div className="absolute inset-0 bg-black/30 flex flex-col">
@@ -91,10 +129,10 @@ export default function RestaurantPage() {
                   {workHours.length > 0 ? (
                     workHours.map((item, index) => (
                       <li key={index}>
-                        {daysOfWeek[item.day_of_week]}:{" "}
+                        {daysOfWeek[item.day_of_week]}:{' '}
                         {item.open_time && item.close_time
-                          ? `${item.open_time.slice(0,5)} - ${item.close_time.slice(0,5)}`
-                          : "Closed"}
+                          ? `${item.open_time.slice(0, 5)} - ${item.close_time.slice(0, 5)}`
+                          : 'Closed'}
                       </li>
                     ))
                   ) : (
@@ -165,26 +203,67 @@ export default function RestaurantPage() {
         </div>
       </div>
       {/* Menu Section */}
-      <div className="flex flex-col w-full mt-10 pb-15 px-40 bg-[#E7DDC4] text-black">
-        <h2 className="text-3xl font-serif font-bold mb-4 mt-4">Menu</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-          {menuItems.length > 0 ? (
-            menuItems.map((item) => (
-              <FoodItem
-                key={item.id}
-                name={item.name}
-                image={item.image_url}
-                price={item.price}
-                description={item.description}
-              />
+      <div className="flex w-full mt-10 pt-4 pb-35 px-40 bg-[#E7DDC4] text-black">
+        {/* Sidebar */}
+        <div className="w-55 mr-8 border-r border-[#4A503D] pr-6">
+          <div className="sticky top-12">
+            <h3 className="text-2xl font-bold mb-4 mt-4">Categories</h3>
+            <ul className="space-y-0">
+              {categories.map((cat, idx, arr) => (
+                <React.Fragment key={cat.id}>
+                  <li>
+                    <button
+                      className="w-full px-3 py-2 rounded hover:bg-[#4A503D] hover:text-white transition text-left"
+                      onClick={() => handleCategoryClick(cat.name)}
+                    >
+                      {cat.name}
+                    </button>
+                  </li>
+                  {idx !== arr.length - 1 && (
+                    <li key={cat.id + "-sep"} role="separator" className="p-0">
+                      <hr className="border-t border-[#4A503D] mx-2" />
+                    </li>
+                  )}
+                </React.Fragment>
+              ))}
+            </ul>
+          </div>
+        </div>
+        {/* Menu grid */}
+        <div className="flex-1 pl-6">
+          <h2 className="text-3xl font-serif font-bold mb-4 mt-4">Menu</h2>
+          {categories.length > 0 ? (
+            categories.map(cat => (
+              <div
+                key={cat.id}
+                className="mb-10"
+                ref={categoryRefs[cat.name]} // <-- Attach the ref here
+              >
+                <h3 className="text-2xl font-bold mb-3">{cat.name}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                  {menuByCategory[cat.name]?.length > 0 ? (
+                    menuByCategory[cat.name].map(item => (
+                      <FoodItem
+                        key={item.id}
+                        name={item.name}
+                        image={item.image_url}
+                        price={item.price}
+                        description={item.description}
+                      />
+                    ))
+                  ) : (
+                    <p className="col-span-full text-gray-500">No items in this category.</p>
+                  )}
+                </div>
+              </div>
             ))
           ) : (
-            <p>No menu items available.</p>
+            <p>No categories found.</p>
           )}
         </div>
       </div>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
