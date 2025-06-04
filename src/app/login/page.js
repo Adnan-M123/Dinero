@@ -61,7 +61,44 @@ export default function LoginPage() {
         sessionStorage.setItem('token', res.data.token);
       }
       setMsg('Login successful!');
-      setTimeout(() => router.push('/'), 1000);
+      // After successful login:
+      const redirectPath = localStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        localStorage.removeItem('redirectAfterLogin');
+        router.push(redirectPath);
+      } else {
+        router.push('/');
+      }
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Login failed');
+    }
+  };
+
+  // Example login handler
+  const handleLogin = async e => {
+    e.preventDefault();
+    const validEmail = validateEmail();
+    const validPassword = validatePassword();
+
+    if (!validEmail || !validPassword) {
+      return;
+    }
+
+    try {
+      const res = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+      if (staySignedIn) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('role', res.data.role);
+      } else {
+        sessionStorage.setItem('token', res.data.token);
+        sessionStorage.setItem('role', res.data.role);
+      }
+      setMsg('Login successful!');
+      if (res.data.role === 'restaurant_admin') {
+        router.push('/profiles/restaurantAdminProfile');
+      } else {
+        router.push('/'); // or router.push('/discover') if that's your discovery page
+      }
     } catch (err) {
       setMsg(err.response?.data?.error || 'Login failed');
     }
@@ -76,7 +113,7 @@ export default function LoginPage() {
 
         <h1 className="text-4xl font-serif text-[#283618] text-center mb-4">Sign in</h1>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
           <div className="mb-6">
             <label htmlFor="email" className="block text-sm text-[#283618]">
               Email
