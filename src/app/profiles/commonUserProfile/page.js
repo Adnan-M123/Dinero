@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
-import { CgProfile } from "react-icons/cg";
-import { PiCalendarDuotone } from "react-icons/pi";
-import { IoSettingsOutline } from "react-icons/io5";
-import { TbLogout } from "react-icons/tb";
+import { useState, useEffect, useRef } from 'react';
+import Navbar from '@/app/components/Navbar';
+import Footer from '@/app/components/Footer';
+import { CgProfile } from 'react-icons/cg';
+import { PiCalendarDuotone } from 'react-icons/pi';
+import { IoSettingsOutline } from 'react-icons/io5';
+import { TbLogout } from 'react-icons/tb';
 import { ToastContainer, toast } from 'react-toastify';
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { FaPlus } from "react-icons/fa";
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { FaPlus } from 'react-icons/fa';
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeTab, setActiveTab] = useState('upcoming');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -21,6 +21,8 @@ export default function ProfilePage() {
   const [editData, setEditData] = useState({});
   const [loading, setLoading] = useState(true);
   const [isPicHovered, setIsPicHovered] = useState(false);
+  const [reservations, setReservations] = useState([]);
+  const [reservationsLoading, setReservationsLoading] = useState(true);
   const fileInputRef = useRef(null);
   const router = useRouter();
 
@@ -31,22 +33,36 @@ export default function ProfilePage() {
       router.push('/login');
       return;
     }
-    axios.get('http://localhost:5001/api/auth/profile', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    axios
+      .get('http://localhost:5001/api/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then(res => {
         setProfile(res.data);
         setEditData({
           username: res.data.username,
           email: res.data.email,
-          phone: res.data.phone || "",
+          phone: res.data.phone || '',
         });
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Not logged in");
+        toast.error('Not logged in');
         setTimeout(() => router.push('/login'), 1500);
       });
+
+    // Fetch user reservations
+    if (token) {
+      axios
+        .get('http://localhost:5001/api/reservations/my', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(res => {
+          setReservations(res.data);
+          setReservationsLoading(false);
+        })
+        .catch(() => setReservationsLoading(false));
+    }
   }, [router]);
 
   // Handle edit form changes
@@ -59,18 +75,18 @@ export default function ProfilePage() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     try {
       await axios.put('http://localhost:5001/api/auth/profile', editData, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setProfile({ ...profile, ...editData });
       setEditMode(false);
-      toast.success("Profile updated!");
+      toast.success('Profile updated!');
     } catch (err) {
-      toast.error("Failed to update profile");
+      toast.error('Failed to update profile');
     }
   };
 
   // (Optional) Handle profile picture upload
-  const handlePictureUpload = async (e) => {
+  const handlePictureUpload = async e => {
     const file = e.target.files[0];
     if (!file) return;
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -80,26 +96,39 @@ export default function ProfilePage() {
       const res = await axios.post('http://localhost:5001/api/auth/profile-picture', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setProfile({ ...profile, profile_picture: res.data.url });
-      toast.success("Profile picture updated!");
+      toast.success('Profile picture updated!');
     } catch {
-      toast.error("Failed to upload picture");
+      toast.error('Failed to upload picture');
     }
   };
 
   // Reservation modal handlers
-  const handleCancelClick = (reservation) => {
+  const handleCancelClick = reservation => {
     setReservationToCancel(reservation);
     setIsModalOpen(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Here you would normally send an API request to cancel
-    toast.success("Your reservation is successfully canceled");
-    setIsModalOpen(false);
+  const handleConfirmCancel = async () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    try {
+      await axios.put(
+        `http://localhost:5001/api/reservations/cancel/${reservationToCancel.id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Your reservation is successfully canceled');
+      // Optionally update UI:
+      setReservations(reservations =>
+        reservations.map(r => (r.id === reservationToCancel.id ? { ...r, status: 'Canceled' } : r))
+      );
+      setIsModalOpen(false);
+    } catch {
+      toast.error('Failed to cancel reservation');
+    }
   };
 
   if (loading) return <div className="text-center mt-10">Loading profile...</div>;
@@ -154,10 +183,14 @@ export default function ProfilePage() {
                     fileInputRef.current.click();
                   }
                 }}
-                style={{ pointerEvents: editMode ? "auto" : "none" }}
+                style={{ pointerEvents: editMode ? 'auto' : 'none' }}
               >
                 <img
-                  src={profile.profile_picture ? `http://localhost:5001${profile.profile_picture}` : '/placeholder.svg?height=80&width=80'}
+                  src={
+                    profile.profile_picture
+                      ? `http://localhost:5001${profile.profile_picture}`
+                      : '/placeholder.svg?height=80&width=80'
+                  }
                   alt="User"
                   className="h-full w-full object-cover"
                 />
@@ -176,7 +209,7 @@ export default function ProfilePage() {
                   title="Upload profile picture"
                   onChange={handlePictureUpload}
                   disabled={!editMode}
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                 />
               </div>
               <div className="space-y-1">
@@ -279,41 +312,59 @@ export default function ProfilePage() {
               {activeTab === 'upcoming' && (
                 <div className="space-y-4 pt-4">
                   <h3 className="text-lg font-medium text-[#4A503D]">Upcoming Reservations</h3>
-                  {[
-                    {
-                      title: 'The Italian Bistro',
-                      date: 'May 10, 2025 • 7:30 PM • Table for 2',
-                      day: 'Friday',
-                      time: '7:30 PM',
-                    },
-                    {
-                      title: 'Sushi Sensation',
-                      date: 'May 15, 2025 • 6:00 PM • Table for 4',
-                      day: 'Wednesday',
-                      time: '6:00 PM',
-                    },
-                  ].map((res, idx) => (
-                    <div key={idx} className="rounded-lg border border-[#CDC1A5] bg-white p-4">
-                      <div className="pb-2">
-                        <h4 className="text-lg font-medium text-[#4A503D]">{res.title}</h4>
-                        <p className="text-sm text-[#938975]">{res.date}</p>
-                      </div>
-                      <div className="pb-4">
-                        <div className="flex items-center gap-4 text-sm text-[#b1a68e]">
-                          <span>📅 {res.day}</span>
-                          <span>⏰ {res.time}</span>
+                  {reservationsLoading ? (
+                    <div>Loading reservations...</div>
+                  ) : reservations.length === 0 ? (
+                    <div className="text-[#938975]">No upcoming reservations.</div>
+                  ) : (
+                    reservations
+                      .filter(
+                        res =>
+                          new Date(res.reservation_date) >= new Date() &&
+                          (res.status === 'Pending' ||
+                            res.status === 'Confirmed' ||
+                            res.status === 'Approved')
+                      )
+                      .map(res => (
+                        <div
+                          key={res.id}
+                          className="rounded-lg border border-[#CDC1A5] bg-white p-4"
+                        >
+                          <div className="pb-2">
+                            <h4 className="text-lg font-medium text-[#4A503D]">
+                              {res.restaurant_name}
+                            </h4>
+                            <p className="text-sm text-[#938975]">
+                              {new Date(res.reservation_date).toLocaleDateString()} •{' '}
+                              {res.reservation_time.slice(0, 5)} • Table for {res.number_of_guests}
+                            </p>
+                            <span
+                              className={`inline-block mt-1 px-2 py-0.5 rounded text-xs
+                              ${
+                                res.status === 'Pending'
+                                  ? 'bg-yellow-200 text-yellow-800'
+                                  : res.status === 'Confirmed'
+                                  ? 'bg-green-200 text-green-800'
+                                  : ''
+                              }
+                            `}
+                            >
+                              {res.status}
+                            </span>
+                          </div>
+                          <div className="mt-4 flex gap-2">
+                            {activeTab === 'upcoming' && (
+                              <button
+                                className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm text-[#4A503D] hover:bg-[#b1a68e]"
+                                onClick={() => handleCancelClick(res)}
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="mt-4 flex gap-2">
-                          <button
-                            className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm text-[#4A503D] hover:bg-[#b1a68e]"
-                            onClick={() => handleCancelClick(res)}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      ))
+                  )}
                 </div>
               )}
 
@@ -321,41 +372,39 @@ export default function ProfilePage() {
               {activeTab === 'past' && (
                 <div className="space-y-4 pt-4">
                   <h3 className="text-lg font-medium text-[#4A503D]">Past Reservations</h3>
-                  {[
-                    {
-                      title: 'Steakhouse Prime',
-                      date: 'April 28, 2025 • 8:00 PM • Table for 2',
-                      day: 'Friday',
-                      time: '8:00 PM',
-                    },
-                    {
-                      title: 'Café Parisienne',
-                      date: 'April 15, 2025 • 12:30 PM • Table for 3',
-                      day: 'Tuesday',
-                      time: '12:30 PM',
-                    },
-                  ].map((res, idx) => (
-                    <div key={idx} className="rounded-lg border border-[#CDC1A5] bg-white p-4">
-                      <div className="pb-2">
-                        <h4 className="text-lg font-medium text-[#4A503D]">{res.title}</h4>
-                        <p className="text-sm text-[#938975]">{res.date}</p>
-                      </div>
-                      <div className="pb-4">
-                        <div className="flex items-center gap-4 text-sm text-[#4A503D]">
-                          <span>📅 {res.day}</span>
-                          <span>⏰ {res.time}</span>
+                  {reservations
+                    .filter(
+                      res =>
+                        new Date(res.reservation_date) < new Date() || res.status === 'Canceled'
+                    )
+                    .map(res => (
+                      <div key={res.id} className="rounded-lg border border-[#CDC1A5] bg-white p-4">
+                        <div className="pb-2">
+                          <h4 className="text-lg font-medium text-[#4A503D]">
+                            {res.restaurant_name}
+                          </h4>
+                          <p className="text-sm text-[#938975]">
+                            {new Date(res.reservation_date).toLocaleDateString()} •{' '}
+                            {res.reservation_time.slice(0, 5)} • Table for {res.number_of_guests}
+                          </p>
+                          <span
+                            className={`inline-block mt-1 px-2 py-0.5 rounded text-xs
+                            ${
+                              res.status === 'Canceled'
+                                ? 'bg-red-200 text-red-800'
+                                : res.status === 'Confirmed'
+                                ? 'bg-green-200 text-green-800'
+                                : res.status === 'Pending'
+                                ? 'bg-yellow-200 text-yellow-800'
+                                : ''
+                            }
+                          `}
+                          >
+                            {res.status}
+                          </span>
                         </div>
-                        <div className="mt-4 flex gap-2">
-                          <button className="rounded-md bg-[#4A503D] px-3 py-1 text-sm text-white hover:bg-[#3c4431]">
-                            Book Again
-                          </button>
-                          <button className="rounded-md border border-[#b1a68e] bg-[#CDC1A5] px-3 py-1 text-sm text-[#4A503D] hover:bg-[#b1a68e]">
-                            Leave Review
-                          </button>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
 

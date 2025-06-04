@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
-import { useEffect, useState, useMemo, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
+import AdminNavbar from '../../components/AdminNavbar';
 import Footer from '../../components/Footer';
 import FoodItem from '../../components/FoodItem';
 import { CiSearch } from 'react-icons/ci';
@@ -25,12 +25,22 @@ const daysOfWeek = [
 
 export default function RestaurantPage() {
   const { name } = useParams();
+  const router = useRouter();
   const [restaurant, setRestaurant] = useState(null);
   const [workHours, setWorkHours] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuByCategory, setMenuByCategory] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reservationData, setReservationData] = useState({
+    date: '',
+    time: '',
+    guests: 2,
+  });
+  const [reservationMsg, setReservationMsg] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isRegularUser, setIsRegularUser] = useState(false);
 
   useEffect(() => {
     // Fetch restaurant info
@@ -116,6 +126,54 @@ export default function RestaurantPage() {
     categoryRefs[catName]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleReservation = () => {
+    // Basic client-side validation
+    if (!reservationData.date || !reservationData.time) {
+      setReservationMsg('Please select both date and time for your reservation.');
+      return;
+    }
+
+    setReservationMsg(''); // Clear any previous messages
+
+    // Here you would typically send the reservationData to your server
+    // For this example, we'll just log it and show a success message
+    console.log('Reservation data:', reservationData);
+    setReservationMsg('Reservation made successfully!'); // Show success message
+    setIsModalOpen(false); // Close the modal
+  };
+
+  const handleOpenReservationModal = () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      // Save current path for redirect after login
+      localStorage.setItem('openReservationModal', 'true');
+      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      router.push('/login');
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('openReservationModal') === 'true') {
+      setIsModalOpen(true);
+      localStorage.removeItem('openReservationModal');
+    }
+  }, []);
+
+  useEffect(() => {
+    // Detect user role and login status
+    function checkRole() {
+      const role = localStorage.getItem('role') || sessionStorage.getItem('role');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      setIsAdmin(role === 'restaurant_admin' && !!token);
+      setIsRegularUser(role === 'user' && !!token);
+    }
+    checkRole();
+    window.addEventListener('storage', checkRole); // In case login status changes in another tab
+    return () => window.removeEventListener('storage', checkRole);
+  }, []);
+
   if (loading) return <div>Loading...</div>;
   if (!restaurant)
     return (
@@ -126,7 +184,13 @@ export default function RestaurantPage() {
 
   return (
     <div className="bg-[#4A503D] text-white min-h-screen font-serif">
-      <Navbar />
+      {isAdmin ? (
+        <AdminNavbar profilePicture={restaurant?.logo_url} />
+      ) : isRegularUser ? (
+        <Navbar />
+      ) : (
+        <Navbar /> 
+      )}
 
       <div
         className="relative w-full h-[600px] bg-cover bg-center bg-fixed"
@@ -176,7 +240,8 @@ export default function RestaurantPage() {
                 <div className="flex flex-col bg-[#484916]/80 p-4 rounded-xl mt-2 gap-y-1">
                   <h2 className="text-xl font-serif font-bold mb-2">Contact Info</h2>
                   <div className="flex items-center gap-x-2">
-                    <HiLocationMarker className="text-lg" /> {/* Changed from text-5xl to text-lg */}
+                    <HiLocationMarker className="text-lg" />{' '}
+                    {/* Changed from text-5xl to text-lg */}
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                         restaurant?.address
@@ -216,7 +281,7 @@ export default function RestaurantPage() {
                 <div className="mt-2">
                   <button
                     className="bg-[#283618] w-[300px] text-white px-6 py-2 rounded-2xl hover:bg-white hover:text-[#4A503D] border border-transparent hover:border-[#4A503D] "
-                    onClick={() => alert('Reservation functionality coming soon!')}
+                    onClick={handleOpenReservationModal}
                   >
                     Make a Reservation
                   </button>
@@ -244,7 +309,7 @@ export default function RestaurantPage() {
                     </button>
                   </li>
                   {idx !== arr.length - 1 && (
-                    <li key={cat.id + "-sep"} role="separator" className="p-0">
+                    <li key={cat.id + '-sep'} role="separator" className="p-0">
                       <hr className="border-t border-[#4A503D] mx-2" />
                     </li>
                   )}
@@ -286,6 +351,96 @@ export default function RestaurantPage() {
           )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(40, 54, 24, 0.9)' }} // 0.3 = 30% opacity
+        >
+          <div className="bg-white text-black rounded-lg p-8 w-[350px] shadow-xl relative">
+            <button
+              className="absolute top-2 right-3 text-2xl text-gray-500 hover:text-black"
+              onClick={() => setIsModalOpen(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Reserve a Table</h2>
+            <form
+              onSubmit={async e => {
+                e.preventDefault();
+                setReservationMsg('');
+                try {
+                  // Get user token
+                  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                  if (!token) {
+                    setReservationMsg('You must be logged in.');
+                    return;
+                  }
+                  // Send reservation to backend
+                  await axios.post(
+                    'http://localhost:5001/api/reservations',
+                    {
+                      restaurant_id: restaurant.id,
+                      reservation_date: reservationData.date,
+                      reservation_time: reservationData.time,
+                      number_of_guests: reservationData.guests,
+                    },
+                    {
+                      headers: { Authorization: `Bearer ${token}` },
+                    }
+                  );
+                  setReservationMsg('Reservation successful!');
+                } catch (err) {
+                  setReservationMsg('Failed to make reservation.');
+                }
+              }}
+            >
+              <div className="mb-3">
+                <label className="block mb-1 font-medium">Date</label>
+                <input
+                  type="date"
+                  className="w-full border rounded px-2 py-1"
+                  value={reservationData.date}
+                  onChange={e => setReservationData({ ...reservationData, date: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1 font-medium">Time</label>
+                <input
+                  type="time"
+                  className="w-full border rounded px-2 py-1"
+                  value={reservationData.time}
+                  onChange={e => setReservationData({ ...reservationData, time: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block mb-1 font-medium">Guests</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  className="w-full border rounded px-2 py-1"
+                  value={reservationData.guests}
+                  onChange={e => setReservationData({ ...reservationData, guests: e.target.value })}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-[#283618] text-white py-2 rounded hover:bg-[#4A503D] transition"
+              >
+                Reserve
+              </button>
+              {reservationMsg && (
+                <div className="mt-3 text-center text-sm text-[#9C5A25]">{reservationMsg}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* <Footer /> */}
     </div>

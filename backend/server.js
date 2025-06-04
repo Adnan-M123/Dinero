@@ -13,6 +13,8 @@ app.get('/', (req, res) => {
 // Mount your users API
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/restaurants', require('./routes/restaurants'));
+app.use('/api/reservations', require('./routes/reservations'));
+app.use('/api/categories', require('./routes/categories'));
 app.use('/uploads', express.static('uploads'));
 
 // Start the server
