@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import axios from 'axios';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import RestaurantCard from './components/RestaurantCard';
-import { useEffect, useState } from 'react';
-import { CiSearch } from 'react-icons/ci';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import axios from "axios";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import RestaurantCard from "./components/RestaurantCard";
+import { useEffect, useState } from "react";
+import { CiSearch } from "react-icons/ci";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Main() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [featuredCategories, setFeaturedCategories] = useState([]); // For buttons
   const [allCategories, setAllCategories] = useState([]); // For search suggestions
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [allRestaurants, setAllRestaurants] = useState([]);
@@ -23,66 +23,73 @@ export default function Main() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5001/api/restaurants')
-      .then(response => {
+      .get("http://localhost:5001/api/restaurants")
+      .then((response) => {
         setRestaurants(response.data);
         setAllRestaurants(response.data); // Store all restaurants for suggestions
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error loading restaurants:', error);
+      .catch((error) => {
+        console.error("Error loading restaurants:", error);
         setLoading(false);
       });
 
     // Fetch featured categories for the buttons
     axios
-      .get('http://localhost:5001/api/restaurants/featured-categories')
-      .then(response => {
-        console.log('Featured categories for buttons:', response.data);
+      .get("http://localhost:5001/api/restaurants/featured-categories")
+      .then((response) => {
+        console.log("Featured categories for buttons:", response.data);
         setFeaturedCategories(response.data);
       })
-      .catch(error => console.error('Error loading featured categories:', error));
+      .catch((error) =>
+        console.error("Error loading featured categories:", error)
+      );
 
     // Fetch ALL categories for search suggestions
     axios
-      .get('http://localhost:5001/api/restaurants/categories')
-      .then(response => {
-        console.log('All categories for suggestions:', response.data.length);
+      .get("http://localhost:5001/api/restaurants/categories")
+      .then((response) => {
+        console.log("All categories for suggestions:", response.data.length);
         setAllCategories(response.data);
       })
-      .catch(error => console.error('Error loading all categories:', error));
+      .catch((error) => console.error("Error loading all categories:", error));
   }, []);
 
   useEffect(() => {
     // Fetch meals/menu items for suggestions
     axios
-      .get('http://localhost:5001/api/restaurants/menu-items') // <-- updated endpoint
-      .then(response => {
+      .get("http://localhost:5001/api/restaurants/menu-items") // <-- updated endpoint
+      .then((response) => {
         setMeals(response.data || []);
       })
-      .catch(error => {
-        console.error('Error fetching meals:', error);
+      .catch((error) => {
+        console.error("Error fetching meals:", error);
       });
   }, []);
 
-  const handleSearch = e => {
+  const handleSearch = (e) => {
     e.preventDefault();
     if (!search.trim()) return;
 
     // Try to match a category name from ALL categories (not just featured)
     const matchedCategory = allCategories.find(
-      cat => cat.name.toLowerCase() === search.trim().toLowerCase()
+      (cat) => cat.name.toLowerCase() === search.trim().toLowerCase()
     );
     if (matchedCategory) {
-      console.log('Matched category:', matchedCategory.name, 'ID:', matchedCategory.id);
+      console.log(
+        "Matched category:",
+        matchedCategory.name,
+        "ID:",
+        matchedCategory.id
+      );
       router.push(`/restaurants?category=${matchedCategory.id}`);
     } else {
-      console.log('No category match, performing search for:', search);
+      console.log("No category match, performing search for:", search);
       router.push(`/restaurants?q=${encodeURIComponent(search)}`);
     }
   };
 
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     const value = e.target.value;
     setSearch(value);
 
@@ -93,51 +100,70 @@ export default function Main() {
     }
 
     // Use all restaurants for suggestions
-    const restaurantNames = allRestaurants.map(r => r.name);
+    const restaurantNames = allRestaurants.map((r) => r.name);
     // Use ALL categories for suggestions (not just featured)
-    const categoryNames = allCategories.map(c => c.name);
+    const categoryNames = allCategories.map((c) => c.name);
 
     // Try different possible property names for meal names
     const mealNames = meals
-      .map(m => {
-        return m.name || m.title || m.item_name || m.meal_name || m.dish_name || String(m);
+      .map((m) => {
+        return (
+          m.name ||
+          m.title ||
+          m.item_name ||
+          m.meal_name ||
+          m.dish_name ||
+          String(m)
+        );
       })
       .filter(Boolean);
 
-    console.log('Building suggestions from:');
-    console.log('- Restaurants:', restaurantNames.length);
-    console.log('- All Categories:', categoryNames.length);
-    console.log('- Meals:', mealNames.length);
+    console.log("Building suggestions from:");
+    console.log("- Restaurants:", restaurantNames.length);
+    console.log("- All Categories:", categoryNames.length);
+    console.log("- Meals:", mealNames.length);
 
     // Combine all suggestions and remove duplicates
-    const allSuggestions = [...new Set([...restaurantNames, ...categoryNames, ...mealNames])];
+    const allSuggestions = [
+      ...new Set([...restaurantNames, ...categoryNames, ...mealNames]),
+    ];
 
     // Filter suggestions that contain the input value (case-insensitive)
-    const filtered = allSuggestions.filter(s => s && s.toLowerCase().includes(value.toLowerCase()));
+    const filtered = allSuggestions.filter(
+      (s) => s && s.toLowerCase().includes(value.toLowerCase())
+    );
 
-    console.log('Filtered suggestions:', filtered.slice(0, 8));
+    console.log("Filtered suggestions:", filtered.slice(0, 8));
 
     setSuggestions(filtered.slice(0, 8));
     setShowSuggestions(true);
   };
 
-  const handleSuggestionClick = suggestion => {
+  const handleSuggestionClick = (suggestion) => {
     setSearch(suggestion);
     setShowSuggestions(false);
 
     // Check if the suggestion matches a category name from ALL categories
     const matchedCategory = allCategories.find(
-      cat => cat.name.toLowerCase() === suggestion.trim().toLowerCase()
+      (cat) => cat.name.toLowerCase() === suggestion.trim().toLowerCase()
     );
 
     if (matchedCategory) {
-      console.log('Suggestion matched category:', matchedCategory.name, 'ID:', matchedCategory.id);
+      console.log(
+        "Suggestion matched category:",
+        matchedCategory.name,
+        "ID:",
+        matchedCategory.id
+      );
       // If it's a category, navigate to restaurants page with category
       router.push(`/restaurants?category=${matchedCategory.id}`);
       return;
     }
 
-    console.log('Suggestion is not a category, performing search for:', suggestion);
+    console.log(
+      "Suggestion is not a category, performing search for:",
+      suggestion
+    );
     // Otherwise, navigate to restaurants page with search query
     router.push(`/restaurants?q=${encodeURIComponent(suggestion)}`);
   };
@@ -153,7 +179,9 @@ export default function Main() {
       >
         <div className="absolute inset-0 bg-opacity-40 flex flex-col items-center justify-center">
           <h1 className="text-5xl font-bold">RESTAURANTS</h1>
-          <p className="mt-2">Find your next meal. Book the right place in time.</p>
+          <p className="mt-2">
+            Find your next meal. Book the right place in time.
+          </p>
           <form
             onSubmit={handleSearch}
             className="search-bar flex flex-col items-center justify-center w-full"
@@ -184,9 +212,9 @@ export default function Main() {
                     max-h-56 overflow-y-auto overflow-hidden z-50 transition-all duration-200 ease-out opacity-90 scale-100
                   `}
                   style={{
-                    minWidth: '20rem',
-                    backdropFilter: 'blur(6px)',
-                    animation: 'fadeSlideDown 0.2s ease',
+                    minWidth: "20rem",
+                    backdropFilter: "blur(6px)",
+                    animation: "fadeSlideDown 0.2s ease",
                   }}
                 >
                   {suggestions.map((s, i) => (
@@ -232,7 +260,7 @@ export default function Main() {
 
       {/* Categories - Only show FEATURED categories as buttons */}
       <div className="flex justify-center gap-4 bg-[#CDC1A5] py-4">
-        {featuredCategories.map(category => (
+        {featuredCategories.map((category) => (
           <Link href={`/restaurants?category=${category.id}`} key={category.id}>
             <button className="px-6 py-2 rounded-lg bg-[#4A503D] text-white shadow-lg hover:scale-105 duration-200">
               {category.name}
@@ -263,7 +291,9 @@ export default function Main() {
                 />
               ))
           ) : (
-            <p className="text-center text-gray-500">No restaurants available.</p>
+            <p className="text-center text-gray-500">
+              No restaurants available.
+            </p>
           )}
         </div>
       </section>
@@ -272,20 +302,24 @@ export default function Main() {
       <section className="py-10 flex justify-around bg-[#E7DDC4] text-black">
         {[
           {
-            text: 'Select your restaurant, pick a date & time, and send your reservation request!',
-            image: '/woman-placing-order.png',
+            text: "Select your restaurant, pick a date & time, and send your reservation request!",
+            image: "/woman-placing-order.png",
           },
           {
-            text: 'The restaurant reviews and confirms your booking in real time!',
-            image: '/waiter-processing-order.png',
+            text: "The restaurant reviews and confirms your booking in real time!",
+            image: "/waiter-processing-order.png",
           },
           {
-            text: 'Arrive, get seated instantly, and enjoy your meal—no waiting!',
-            image: '/people-having-dinner.png',
+            text: "Arrive, get seated instantly, and enjoy your meal—no waiting!",
+            image: "/people-having-dinner.png",
           },
         ].map((step, i) => (
           <div key={i} className="w-1/3 text-center max-w-70">
-            <img src={step.image || '/placeholder.svg'} alt="Step" className="mx-auto h-40" />
+            <img
+              src={step.image || "/placeholder.svg"}
+              alt="Step"
+              className="mx-auto h-40"
+            />
             <p className="mt-3 text-sm">{step.text}</p>
           </div>
         ))}

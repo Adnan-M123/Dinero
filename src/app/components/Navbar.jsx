@@ -62,7 +62,7 @@ export default function Navbar() {
         {/* Left Section: Logo and Title */}
         <div className="flex items-center gap-4">
           <img
-            src="../dinero-logo.png"
+            src="../Dinero-logo.png"
             alt="Dinero Logo"
             className="w-12 h-12 rounded-full"
           />
