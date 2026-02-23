@@ -67,12 +67,12 @@ export default function RestaurantPage() {
       });
 
     // Fetch menu items
-    fetch(`http://localhost:5001/api/restaurants/name/${name}/menu-items`)
-      .then(response => response.json())
-      .then(data => setMenuItems(data))
-      .catch(error => {
-        console.error('Error loading menu items:', error);
-      });
+    // fetch(`http://localhost:5001/api/restaurants/name/${name}/menu`)
+    //   .then(response => response.json())
+    //   .then(data => setMenuItems(data))
+    //   .catch(error => {
+    //     console.error('Error loading menu items:', error);
+    //   });
 
     // Fetch categories
     fetch(`http://localhost:5001/api/restaurants/name/${name}/categories`)
